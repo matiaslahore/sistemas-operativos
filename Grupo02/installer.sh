@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 actualPosition=`pwd`
 GRUPO=~/Grupo02;
 CONFDIR=dirconf;
@@ -27,7 +28,7 @@ verifyInstallation(){
 }
   
 verifyFullInstall(){
-	
+
 	BINDIR=$(grep '^BINDIR' $CONFIGFILE | cut -d '=' -f 2);
 	MAEDIR=$(grep '^MAEDIR' $CONFIGFILE | cut -d '=' -f 2);
 	ACEPTDIR=$(grep '^ACEPDIR' $CONFIGFILE | cut -d '=' -f 2);
@@ -36,9 +37,10 @@ verifyFullInstall(){
 	REPODIR=$(grep '^REPODIR' $CONFIGFILE | cut -d '=' -f 2);
 	LOGDIR=$(grep '^LOGDIR' $CONFIGFILE | cut -d '=' -f 2);
 
-	folders=("$BINDIR" "$MAEDIR" "$ACEPTDIR" "$VALIDDIR" "$RECHDIR" "$REPODIR" "$NOVEDIR" "$LOGDIR")
-	binFolder=("mover.sh" "gralog.sh" "funcionesComunes.sh" "detener.sh" "arrancar.sh" "afraumbr.sh" "afrareci.sh" "afralist.pl" "afrainic.sh")
-	maeFolder=("umbral.tab" "tllama.tab" "CdP.mae" "CdC.mae" "CdA.mae" "agentes.mae")
+
+	folders=("$BINDIR" "$MAEDIR" "$ACEPTDIR" "$VALIDDIR" "$RECHDIR" "$REPODIR" "$LOGDIR");
+	binFolder=("mover.sh" "gralog.sh" "funcionesComunes.sh" "detener.sh" "arrancar.sh" "afraumbr.sh" "afrareci.sh" "afralist.pl" "afrainic.sh");
+	maeFolder=("umbral.tab" "tllama.tab" "CdP.mae" "CdC.mae" "CdA.mae" "agentes.mae");
 
 	# if directory dont exist, its attached to dirToInstall array if the user want to install
 	p=0;
@@ -150,7 +152,6 @@ verifyPerl(){
 	version=$(echo "$perlVersionCommand" | grep " perl [0-9]" | sed "s-.*\(perl\) \([0-9]*\).*-\2-");
 	if [ $version -ge 5 ];then
 		echo "Perl version: $perlVersionCommand \n"
-		$GRALOG "$perlVersionCommand" "INFO"
 		echo "Estamos listos para instalar el sistema, presione una tecla para continuar"
 		read x
 		clear
@@ -171,12 +172,12 @@ showInstalationState(){
 	echo "Archivos de tarjetas validadas: ${VALIDDIR}"
 	echo "Archivos de Log: ${LOGDIR}"
 	echo "Archivos de tarjetas rechazadas: ${RECHDIR}"
-	echo -e "\nEstado de la instalación: $1"
+	echo "\nEstado de la instalación: $1"
 }
 
 fullInstall(){
 	echo "Bienvenido a la instalacion del validador de tarjetas.\n"
-	echo "(S/N)"
+	echo "¿Desea instalar el validador?(S/N)"
 	read answer
 	if [ ${answer^^} = "S" ];then
 		while [ ${answer^^} = "S" ]
@@ -210,28 +211,27 @@ makeDirs() {
 	p=0;
 	for defaultDir in ${defaultFolders[*]}
 	do
-		Message="Defina el directorio de $foldersName[$p] ($defaultDir):" 
+		Message="Defina el directorio de ${foldersName[$p]} ($defaultDir):"
 		echo "$Message"
 		read INPUT
    		if [ ! INPUT ]; then
 			dirToInstall[$p]=$defaultDir;
-			let p=p+1;
 		else
 			verifyDir $INPUT
-			$answer=$?
+			answer=$?
 			if [ ! $answer ]; then
 				dirToInstall[$p]=$INPUT;
 			fi
 		fi
+		p=$((p + 1 ))
  	done
-
+    echo "asd";
 	mostrarDefiniciones
 }
 
 mostrarDefiniciones() {
 	clear;
-	echo "El sistema va a instalarse en los siguientes directorios\n";
-	echo "\n";
+	echo "El sistema va a instalarse en los siguientes directorios";
 	for defaultDir in ${dirToInstall[*]}
 	do
 		Message="Directorio de $foldersName[$p] ($defaultDir):" 
@@ -249,7 +249,28 @@ mostrarDefiniciones() {
 	fi
 }
 
+writeConfig () {
+	WHEN=`date +%T-%d-%m-%Y`
+	WHO=${USER}
+
+	#GRUPO
+	echo "ejecutables-$GRUPO=$WHO=$WHEN" >> $CONFIGFILE
+	#MAEDIR
+	echo "maestros-$GRUPO/$MAEDIR=$WHO=$WHEN" >> $CONFIGFILE
+	#ACEPDIR
+	echo "aceptados-$GRUPO/$ACEPTDIR=$WHO=$WHEN" >> $CONFIGFILE
+	#RECHDIR
+	echo "rechazados=$GRUPO/$RECHDIR=$WHO=$WHEN" >> $CONFIGFILE
+	#VALIDDIR
+	echo "validados-$GRUPO/$VALIDDIR=$WHO=$WHEN" >> $CONFIGFILE
+	#REPODIR
+	echo "reportes=$GRUPO/$REPODIR=$WHO=$WHEN" >> $CONFIGFILE
+	#LOGDIR
+	echo "logs-$GRUPO/$LOGDIR=$WHO=$WHEN" >> $CONFIGFILE
+}
+
 end(){
+    writeConfig;
 	echo "fin";
 }
 
