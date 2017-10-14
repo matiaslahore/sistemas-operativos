@@ -3,7 +3,9 @@ actualPosition=`pwd`
 GRUPO=~/Grupo02;
 CONFDIR=dirconf;
 CONFIGFILE="$GRUPO/$CONFDIR/config.conf";
-USERVALUES="$actualPosition/BIN/uservalues.temp";
+USERVALUES="$actualPosition/uservalues.tmp";
+binFolder=("mover.sh")
+maeFolder=("umbral.tab" "tllama.tab" "CdP.mae" "CdC.mae" "CdA.mae" "agentes.mae")
 
 verifyFile () {
     if [ -f "$1" ];then
@@ -84,10 +86,7 @@ verifyFullInstall(){
 	REPODIR=$(grep '^reportes' $CONFIGFILE | cut -d '-' -f 2);
 	LOGDIR=$(grep '^logs' $CONFIGFILE | cut -d '-' -f 2);
 
-
 	folders=("$BINDIR" "$MAEDIR" "$ACEPTDIR" "$VALIDDIR" "$RECHDIR" "$REPODIR" "$LOGDIR");
-	binFolder=("mover.sh" "gralog.sh" "funcionesComunes.sh" "detener.sh" "arrancar.sh" "afraumbr.sh" "afrareci.sh" "afralist.pl" "afrainic.sh");
-	maeFolder=("umbral.tab" "tllama.tab" "CdP.mae" "CdC.mae" "CdA.mae" "agentes.mae");
 
 	# if directory dont exist, its attached to dirToInstall array if the user want to install
 	p=0;
@@ -95,27 +94,29 @@ verifyFullInstall(){
 	do
    		if [ ! -d $Dir ]; then  
 			dirToInstall[$p]=$Dir;		
-			let p=p+1;
+			((++p));
 		fi
  	done
 
- 	#if binary dont exist, its attached to binToInstall array if the user want to install 
+ 	#if binary dont exist, its attached to binToInstall array if the user want to install
 	p=0;
-	for binFile in ${binFolder[*]}
-	do
-		if [ ! -f "$BINDIR/$binFile" ];then 
-			binToInstall[$p]=$binFile;
-			let p=p+1;
+	filepath="$actualPosition/BIN/*";
+	for binFile in $filepath; do
+	    scriptName=$(basename $binFile);
+		if [ ! -f "$BINDIR/$scriptName" ];then
+			binToInstall[$p]=$scriptName;
+			((++p));
 		fi
-	done	
+	done
 
-	#if binary dont exist, its attached to maeToInstall array if the user want to install
+	#if mae dont exist, its attached to maeToInstall array if the user want to install
 	p=0;
-	for maeFile in ${maeFolder[*]}
-	do
-		if [ ! -f "$MAEDIR/$maeFile" ];then 
-			maeToInstall[$p]=$maeFile;
-			let p=p+1;
+	filepath="$actualPosition/MAE/*";
+	for maeFile in $filepath; do
+	    maeName=$(basename $maeFile);
+		if [ ! -f "$MAEDIR/$maeName" ];then
+			maeToInstall[$p]=$maeName;
+			((++p));
 		fi
 	done	
 
@@ -146,8 +147,6 @@ repairInstall (){
 			clear;
 			state=completed;
 			showInstalationState $state;
-		else
-			end;
 		fi
 	fi
 	echo "Proceso de Instalación Finalizado"
@@ -155,15 +154,6 @@ repairInstall (){
 }
 
 completeInstallation () {
-
-    BINDIR=${dirToInstall[0]};
-    MAEDIR=${dirToInstall[1]};
-    ACEPTDIR=${dirToInstall[2]};
-    RECHDIR=${dirToInstall[3]};
-    VALIDDIR=${dirToInstall[4]};
-    REPODIR=${dirToInstall[5]};
-    LOGDIR=${dirToInstall[6]};
-    writeUserValue;
 
 	for p in ${dirToInstall[*]}
 	do
@@ -177,43 +167,49 @@ completeInstallation () {
             verifyDir $dirToCreate
             answer=$?
             if [  "$answer" -eq "0" ]; then
-                mkdir $dirToCreate
+                mkdir $dirToCreate;
             fi
             ant="$dirToCreate/";
         done
 	done
 
-	whereAMI=`pwd`
+    for binFile in "$actualPosition/BIN/*"; do
+		cp $binFile $BINDIR/
+    done
 
-	for p in ${binFolder[*]}
-	do
-		cp $whereAMI/BIN/$p $BINDIR/
-	done
-
-	for p in ${maeToInstall[*]}
-	do
-		cp $whereAMI/MAE/$p $MAEDIR/
-	done
+    for maeFile in "$actualPosition/MAE/*"; do
+		cp $maeFile $MAEDIR/
+    done
 }
 
 showComponentsToInstall(){
-	echo "Directorios a instalar:\n"
-	for p in ${dirToInstall[*]}
-	do
-		echo $p;
-	done
 
-	echo "Ejecutables a instalar:\n"
-	for p in ${binToInstall[*]}
-	do
-		echo $BINDIR/$p;
-	done	
+    if [ ${#dirToInstall[@]} -gt 0 ];then
+        echo "****************************************************";
+        echo "Directorios a instalar:"
+        for p in ${dirToInstall[*]}
+        do
+            echo $p;
+        done
+    fi
 
-	echo "Archivos a instalar:\n"
-	for p in ${maeToInstall[*]}
-	do
-		echo $MAEDIR/$p;
-	done
+    if [ ${#binToInstall[@]} -gt 0 ];then
+        echo "****************************************************";
+        echo "Ejecutables a instalar:"
+        for p in ${binToInstall[*]}
+        do
+            echo $BINDIR/$p;
+        done
+    fi
+
+    if [ ${#maeToInstall[@]} -gt 0 ];then
+        echo "****************************************************"
+        echo "Archivos a instalar:"
+        for p in ${maeToInstall[*]}
+        do
+            echo $MAEDIR/$p;
+        done
+    fi
 }
 
 verifyPerl(){
@@ -229,13 +225,15 @@ verifyPerl(){
 
 showInstalationState(){
 	echo "Carpeta de Ejecutables: ${BINDIR}"
-	echo "Carpeta de Configuración: ${CONFDIR}"
+	echo "Carpeta de Configuración: "/${CONFDIR}""
 	echo "Archivos de Maestros: ${MAEDIR}"
 	echo "Archivos de tarjetas aceptadas: ${ACEPTDIR}"
 	echo "Archivos de tarjetas validadas: ${VALIDDIR}"
 	echo "Archivos de Log: ${LOGDIR}"
 	echo "Archivos de tarjetas rechazadas: ${RECHDIR}"
-	echo "\nEstado de la instalación: $1"
+    echo "****************************************************";
+	echo "Estado de la instalación: $1"
+    echo "****************************************************";
 }
 
 fullInstall(){
@@ -257,9 +255,6 @@ fullInstall(){
 
 makeDirs() {
 	foldersName=("ejecutables" "archivos maestros" "tarjetas aceptadas" "tarjetas rechazadas" "tarjetas validadas" "reportes" "logs");
-	binFolder=("mover.sh")
-#	binFolder=("mover.sh" "gralog.sh" "funcionesComunes.sh" "detener.sh" "arrancar.sh")
-	maeFolder=("umbral.tab" "tllama.tab" "CdP.mae" "CdC.mae" "CdA.mae" "agentes.mae")
 
     declare -A dirToInstall
 	p=0;
@@ -284,6 +279,16 @@ makeDirs() {
 }
 
 mostrarDefiniciones() {
+
+    BINDIR=${dirToInstall[0]};
+    MAEDIR=${dirToInstall[1]};
+    ACEPTDIR=${dirToInstall[2]};
+    RECHDIR=${dirToInstall[3]};
+    VALIDDIR=${dirToInstall[4]};
+    REPODIR=${dirToInstall[5]};
+    LOGDIR=${dirToInstall[6]};
+    writeUserValue;
+
 	clear;
 	echo "El sistema va a instalarse en los siguientes directorios";
 
@@ -298,18 +303,26 @@ mostrarDefiniciones() {
 	read answer
 	if [ ${answer^^} = "S" ];then
 		completeInstallation;
+		end;
+	else
+	    echo "La instalacion a sido interrumpida"
 	fi
-    end;
+
 }
 
 writeConfig () {
+
 	WHEN=`date +%T-%d-%m-%Y`
 	WHO=${USER}
 
     verifyDir $GRUPO
     answer=$?
     if [  "$answer" -eq "1" ];then
-        mkdir $GRUPO/dirconf
+        verifyDir $GRUPO/dirconf
+        answer=$?
+        if [  "$answer" -eq "0" ];then
+            mkdir $GRUPO/dirconf
+        fi
     fi
 
     verifyFile $CONFIGFILE
@@ -331,7 +344,7 @@ writeUserValue () {
 
     verifyFile $USERVALUES
     result=$?
-    if [  "$result" -eq "0" ];then
+    if [  "$result" -eq "1" ];then
         rm $USERVALUES;
     fi
 
@@ -348,8 +361,11 @@ writeUserValue () {
 
 end(){
     writeConfig;
-    rm $USERVALUES;
-	echo "fin";
+    verifyFile $USERVALUES
+    result=$?
+    if [  "$result" -eq "1" ];then
+        rm $USERVALUES;
+    fi
 }
 
 verifyInstallation;
