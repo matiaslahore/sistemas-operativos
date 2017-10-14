@@ -220,7 +220,7 @@ sub definirListador {
 					return @estados;
 				},
 				"*" => sub {
-					my @estados = ("*");
+					my @estados = ("ACTIVA", "BAJA", "CTX", "JUD");
 					return @estados;
 				},
 			);
