@@ -196,6 +196,21 @@ echo " El registro rechazado es $archivoInput""$separador""$mensaje""$separador"
 echo "$archivoInput""$separador""$mensaje""$separador""$registro" >> $archivoOutput
 }
 
+function getNroValidador {
+
+for i in $(ls -F $PATH_VALIDADOS | sed 's/.*\_//' | sed 's/\..*//');
+do	
+	echo $i;
+	if [ $i -gt $NUMERO_SESSION ]; then
+		NUMERO_SESSION=$i;
+	fi;	
+	
+done;
+echo "El ultimo número es: $NUMERO_SESSION";
+NUMERO_SESSION=$((NUMERO_SESSION + 1));
+echo "El archivo validador será el nro°$NUMERO_SESSION";
+}
+
 PATH_ACEPTADOS="/home/maciel/Documentos/SISOP/TP/aceptados";
 PATH_PROCESADOS="/home/maciel/Documentos/SISOP/TP/aceptados/procesados";
 PATH_RECHAZADOS="/home/maciel/Documentos/SISOP/TP/rechazados";
@@ -205,24 +220,27 @@ PATH_RECHAZADOS="/home/maciel/Documentos/SISOP/TP/rechazados";
 PATH_CUMAE="/home/maciel/Documentos/SISOP/TP/mandodatostpmaestrosyalgunasnovedades/cumae";
 PATH_BAMAE="/home/maciel/Documentos/SISOP/TP/mandodatostpmaestrosyalgunasnovedades/bamae";
 PATH_TARJETAS="/home/maciel/Documentos/SISOP/TP/mandodatostpmaestrosyalgunasnovedades/tx_tarjetas";
-LOGER="loger.sh"
+LOGER="loger.sh";
+LISTADOR="listador.sh";
 LOGS="/home/maciel/Documentos/SISOP/TP/logs/";
 LOGS_VALIDADOR="validador.log";
-EJECUTABLES="/home/maciel/Documentos/SISOP/TP/";
+EJECUTABLES="/home/maciel/Documentos/SISOP/TP/ejecutables/";
 PATH_REG_RECHAZADOS="/home/maciel/Documentos/SISOP/TP/rechazados/Plasticos_rechazados.txt";
 
 NUMERO_ARCH=3;
-NUMERO_SESSION=11;
+NUMERO_SESSION=1;
 
 MSJ_ERR="";
 
 REG_OK_POR_ARCH=0;
 REG_POR_ARCH=0;
 uno=1;
-
+LLAMAR_LISTADOR=0;
 
 MSJ_ERR="El VALIDADOR del DEMONIO comienza."
 bash "$EJECUTABLES""$LOGER" "VALIDADOR" "ERROR" "$MSJ_ERR" "$LOGS""validador.log";
+
+getNroValidador
 
 for i in $(ls -F $PATH_ACEPTADOS | grep -v '/$');
 do  	
@@ -362,6 +380,7 @@ do
 	MSJ_ERR="Se rechazaron ""$REG_RECH_POR_ARCH"" registros del archivo ""$f";
 	bash "$EJECUTABLES""$LOGER" "VALIDADOR" "INFORMATIVO" "$MSJ_ERR" "$LOGS""validador.log";
 	
+	LLAMAR_LISTADOR=$((LLAMAR_LISTADOR + REG_OK_POR_ARCH));	
 	
 	REG_POR_ARCH=0;
 	REG_OK_POR_ARCH=0;
@@ -371,3 +390,14 @@ done;
 
 MSJ_ERR="El VALIDADOR del DEMONIO terminó."
 bash "$EJECUTABLES""$LOGER" "VALIDADOR" "ERROR" "$MSJ_ERR" "$LOGS""validador.log";
+
+if [ $LLAMAR_LISTADOR -gt 0 ]; then
+	MSJ_ERR="Se llamará al listador."
+	bash "$EJECUTABLES""$LOGER" "VALIDADOR" "INFORMATIVO" "$MSJ_ERR" "$LOGS""validador.log";
+	bash "$EJECUTABLES""$LISTADOR";
+else 
+	MSJ_ERR="No hay información para llamar al listador."
+	bash "$EJECUTABLES""$LOGER" "VALIDADOR" "INFORMATIVO" "$MSJ_ERR" "$LOGS""validador.log";
+fi;	
+
+
