@@ -1,28 +1,17 @@
-#Variables de entorno necesarias (las declaro para poder probar durante desarrollo)
-DIRABUS="/home/joaquin/Dev/sisop/novedades"
-ACEPTADOS="/home/joaquin/Dev/sisop/aceptados/"
-RECHAZADOS="/home/joaquin/Dev/sisop/rechazados/"
-PROCESADOS="'$ACEPTADOS'procesados/"
-EJECUTABLES="/home/joaquin/Dev/sisop/ejecutables/"
-MAESTROS="/home/joaquin/Dev/sisop/maestros/"
-LOGS="/home/joaquin/Dev/sisop/logs/"
-
-VALIDADOR="validador.sh"
-LOGER="loger.sh"
-MOVER="mover.sh"
-BAMAE="bamae"
-# Acá empieza el demonio. Lo de arriba se borra una vez que esté el inicializador implementado
-
 #Valido que las variables de entorno hayan sido inicializadas
-if [[ -z ${DIRABUS+x} || -z ${ACEPTADOS+x} || -z ${RECHAZADOS+x} || -z ${PROCESADOS+x} || -z ${EJECUTABLES+x} || -z ${MAESTROS+x} || -z ${LOGS+x} || -z ${VALIDADOR+x} || -z ${LOGER+x} || -z ${MOVER+x} || -z ${BAMAE+x} ]]; then
+if [[ -z ${DIRABUS+x} || -z ${ACEPTADOS+x} || -z ${RECHAZADOS+x} || -z ${EJECUTABLES+x} || -z ${MAESTROS+x} || -z ${LOGS+x} ]]; then
 	echo "Sistema sin inicializar"
 	exit
 fi
 
 #Variabes utilizadas en la rutina
-LOG_DEMONIO="demonio.log"
-ACEPTADOS_DUP="$ACEPTADOS""dup/"
-RECHAZADOS_DUP="$RECHAZADOS""dup/"
+VALIDADOR="/validador.sh"
+LOGER="/loger.sh"
+MOVER="/mover.sh"
+BAMAE="/bamae"
+LOG_DEMONIO="/demonio.log"
+ACEPTADOS_DUP="$ACEPTADOS""/dup/"
+RECHAZADOS_DUP="$RECHAZADOS""/dup/"
 CICLO=1
 ENTIDADES=()
 LIMITE_LOG=50
@@ -102,7 +91,6 @@ do
 
 	done < <(find "$DIRABUS" -regextype sed -regex ".*/[0-9]\{3\}_[0-9]\{8\}\.txt" -type f) #Validaciones
 
-	echo "${novedades[@]}"
 	#Itero sobre las novedades cuyo nombre cumplieron con el patron y veo que hago con ellas
 	for novedad in "${novedades[@]}"
 	do
