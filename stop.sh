@@ -13,4 +13,4 @@ echo cerrando proceso ...
 kill $IDPROCESO
 echo proceso finalizado.
 
-./log.sh "stop.sh" "Informativo" "Se detuvo la ejecuccion del demonio" "$CONFDIR/logs.log"
+./loger.sh "stop.sh" "Informativo" "Se detuvo la ejecuccion del demonio" "$CONFDIR/stop.log"
