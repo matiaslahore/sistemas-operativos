@@ -11,18 +11,18 @@ extension=${nombre_archivo##*.}
 
 #Obtengo el codigo a agregar a los archivos repetidos para no perderlos
 codigo=1
-if [ ! -f "$EJECUTABLES""hash.txt" ]; then
-	echo "$codigo" > "$EJECUTABLES""hash.txt"
+if [ ! -f "$EJECUTABLES""/hash.txt" ]; then
+	echo "$codigo" > "$EJECUTABLES""/hash.txt"
 else
-	codigo=$(cat "$EJECUTABLES""hash.txt")
+	codigo=$(cat "$EJECUTABLES""/hash.txt")
 fi
 
 
-if [ ! -f "$destino""$nombre_archivo" ]; then #Si no existe el archivo, lo muevo a la carpeta destino
-	mv "$origen" "$destino""$nombre_archivo"
+if [ ! -f "$destino"/"$nombre_archivo" ]; then #Si no existe el archivo, lo muevo a la carpeta destino
+	mv "$origen" "$destino"/"$nombre_archivo"
 else
 	mkdir -p "$alternativa" #Si no existe, creo el directorio de duplicados
-	mv "$origen" "$alternativa""$sin_extension""-""$codigo"".""$extension"
+	mv "$origen" "$alternativa"/"$sin_extension""-""$codigo"".""$extension"
 	let codigo+=1 #Actualizo el valor para que no se repitan dos archivos
-	echo "$codigo" > "$EJECUTABLES""hash.txt"
+	echo "$codigo" > "$EJECUTABLES""/hash.txt"
 fi
