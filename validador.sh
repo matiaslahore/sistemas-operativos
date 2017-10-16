@@ -5,17 +5,14 @@
 function validarProcesado {
 	f=${1##*/};
 	if [ -f $PROCESADOS/$f ]; then
-#		echo "El archivo $1 ya ha sido procesado";
 		validarDuplicado "$f";	
 		if [ $? = 0 ]; then
 			mv $ACEPTADOS/$f $RECHAZADOS;
 			MSJ_ERR="El archivo $1 ya ha sido procesado. Ha sido movido hacia la carpeta de rechazados";
 			bash "$EJECUTABLES""$LOGER" "VALIDADOR" "ALERTA" "$MSJ_ERR" "$LOGS""$LOG_VALIDADOR";
-			echo "El archivo $f se movió a la carpeta de rechazados";
 			return 0;
 		fi;
 	else 
-#		echo "El archivo $f se va a procesar";
 		return 1; 
 	fi; 
 	
@@ -34,7 +31,6 @@ function validarDuplicado {
 		mv $ACEPTADOS/$f"_"$NUMERO_ARCH$ext $DUPLICADOS/$f"_"$NUMERO_ARCH$ext;
 		MSJ_ERR="El archivo $f"_"$NUMERO_ARCH$ext será movido hacia la carpeta de duplicados con el nombre de $f$NUMERO_ARCH$ext";
 		bash "$EJECUTABLES""$LOGER" "VALIDADOR" "ALERTA" "$MSJ_ERR" "$LOGS""$LOG_VALIDADOR";
-#		echo "El archivo $f"_"$NUMERO_ARCH$ext se movió a la carpeta de duplicados";
 		NUMERO_ARCH=0;
 		return 1;
 	fi; 
@@ -194,6 +190,8 @@ if ! [ -d $1 ]; then
 fi;	
 }
 
+echo "El validador inició!";
+
 #Valido que las variables de entorno hayan sido inicializadas
 if [[ -z ${DIRABUS+x} || -z ${ACEPTADOS+x} || -z ${RECHAZADOS+x} || -z ${EJECUTABLES+x} || -z ${MAESTROS+x} || -z ${LOGS+x} ]]; then
 	echo "Sistema sin inicializar"
@@ -346,7 +344,7 @@ do
 	mv $ACEPTADOS/$i $PROCESADOS/$i;
 	
 done;
-
+echo "El validador termino!";
 MSJ_ERR="El VALIDADOR del DEMONIO terminó."
 bash "$EJECUTABLES""$LOGER" "VALIDADOR" "ERROR" "$MSJ_ERR" "$LOGS""$LOG_VALIDADOR";
 
