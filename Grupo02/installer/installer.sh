@@ -5,8 +5,11 @@ CONFDIR=dirconf;
 CONFIGFILE="$GRUPO/$CONFDIR/config.conf";
 USERVALUES="$actualPosition/uservalues.tmp";
 LOGER=BIN/loger.sh
+SCRIPT="Instalador"
+LOGFILE=installer.log
 
 verifyFile () {
+
     if [ -f "$1" ];then
         return 1;
     else
@@ -15,6 +18,7 @@ verifyFile () {
 }
 
 verifyDir () {
+
 	local filePath=$1
 	if [ -d "$filePath" ];then
 		return 1
@@ -29,14 +33,15 @@ install(){
     verifyFile $CONFIGFILE
     result=$?
     if [  "$result" -eq "1" ];then
+        ./$LOGER "$SCRIPT" "INF" "Se ejecuto la instalacion, se esta verificando que el sistema este completo" $LOGFILE
 		verifyFullInstall;
     else
+        ./$LOGER "$SCRIPT" "INF" "Se ejecuto la instalacion, no hay sistema instalado" $LOGFILE
         initInstallation;
     fi
 }
 
 initInstallation(){
-
 
     echo "****************************************************";
     echo "Card validator no está instalado en su computadora";
@@ -47,12 +52,16 @@ initInstallation(){
     if [ "$perlInstaled" -eq "1" ];then
         echo "Perl version: `perl -v`"
         echo "****************************************************";
+        ./$LOGER "$SCRIPT" "INF" "Perl esta correctamente instalado en el sistema" $LOGFILE
+
         echo "Estamos listos para instalar el sistema, presione una tecla para continuar"
         read x
         uploadUserValues;
         clear
         fullInstall;
     else
+        ./$LOGER "$SCRIPT" "ERR" "Fallo la instalacion, la version 5 de Perl no esta instalada en el sistema" $LOGFILE
+
         echo "Para ejecutar el validador de tarjetas es necesario contar con Perl 5 o superior"
         echo "Instale Perl y vuelva e inténtelo nuevamente"
         echo "La instalacion ha sido interrumpida"
@@ -69,6 +78,8 @@ uploadUserValues(){
             defaultFolders[$p]=$line
             ((++p));
         done < "$USERVALUES"
+
+        ./$LOGER "$SCRIPT" "INF" "Se cargaron los nombres de las carpetas elegidas anteriormente por el usuario" $LOGFILE
     else
         defaultFolders=("$GRUPO/bin" "$GRUPO/maestros" "$GRUPO/aceptados" "$GRUPO/rechazados" "$GRUPO/validados" "$GRUPO/reportes" "$GRUPO/logs");
     fi
@@ -132,8 +143,8 @@ verifyFullInstall(){
 }
 
 repairInstall (){
+
 	state=$1
-	
 	showInstalationState $state;
 
 	if [ $state != "completed" ];then
@@ -157,6 +168,7 @@ repairInstall (){
 
 completeInstallation () {
 
+    ./$LOGER "$SCRIPT" "INF" "Se estan por crear todas las carpetas necesarias en los directorios elegido por el usuario" $LOGFILE
 	for p in ${dirToInstall[*]}
 	do
 		IFS='/' read -r -a array <<< "$p";
@@ -174,11 +186,15 @@ completeInstallation () {
             ant="$dirToCreate/";
         done
 	done
+    ./$LOGER "$SCRIPT" "INF" "Se crearon todas las carpetas necesarias" $LOGFILE
 
+    ./$LOGER "$SCRIPT" "INF" "Se estan por mover todos los ejecutables a la carpeta de ejecutables" $LOGFILE
     for binFile in "$actualPosition/BIN/*"; do
 		cp $binFile $BINDIR/
     done
+    ./$LOGER "$SCRIPT" "INF" "Se movieron todos los ejecutables con exito" $LOGFILE
 
+    ./$LOGER "$SCRIPT" "INF" "Se estan por mover todos los archivos maestros a la carpeta de maestros" $LOGFILE
     for maeFile in "$actualPosition/MAE/*"; do
 		cp $maeFile $MAEDIR/
     done
@@ -215,6 +231,7 @@ showComponentsToInstall(){
 }
 
 verifyPerl(){
+
 	echo "Verificando instalación de Perl...";
 	perlVersionCommand=`perl -v`;
 	version=$(echo "$perlVersionCommand" | grep " perl [0-9]" | sed "s-.*\(perl\) \([0-9]*\).*-\2-");
@@ -226,6 +243,7 @@ verifyPerl(){
 }
 
 showInstalationState(){
+
 	echo "Carpeta de Ejecutables: ${BINDIR}"
 	echo "Carpeta de Configuración: "/${CONFDIR}""
 	echo "Archivos de Maestros: ${MAEDIR}"
@@ -236,42 +254,51 @@ showInstalationState(){
     echo "****************************************************";
 	echo "Estado de la instalación: $1"
     echo "****************************************************";
+
+    ./$LOGER "$SCRIPT" "INF" "Estado de la instalacion: $1" $LOGFILE
 }
 
 fullInstall(){
+
+    ./$LOGER "$SCRIPT" "INF" "Instalador preparado para la instalacion completa" $LOGFILE
 	echo "Bienvenido a la instalacion del validador de tarjetas."
 	echo "¿Desea instalar el validador?(S/N)"
 	read answer
 	if [ ${answer^^} = "S" ];then
 		while [ ${answer^^} = "S" ]
 		do
+            ./$LOGER "$SCRIPT" "INF" "El usuario ha aceptado instalar el sistema" $LOGFILE
 			makeDirs
 			answer=$?
 		done
 	else
-		echo "\nInstalacion cancelada\n";
-		fin;
+		echo "Instalacion cancelada";
+        ./$LOGER "$SCRIPT" "WARN" "El usuario ha cancelado la instalacion del sistema" $LOGFILE
 		clear
 	fi
 }
 
 makeDirs() {
+
 	foldersName=("ejecutables" "archivos maestros" "tarjetas aceptadas" "tarjetas rechazadas" "tarjetas validadas" "reportes" "logs");
 
     declare -A dirToInstall
 	p=0;
 	for defaultDir in ${defaultFolders[*]}
 	do
+        ./$LOGER "$SCRIPT" "INF" "El usuario tiene por defecto $defaultDir para la carpeta de ${foldersName[$p]}" $LOGFILE
 		Message="Defina el directorio de ${foldersName[$p]} ($defaultDir):"
 		echo "$Message"
 		read input
    		if [  "$input"  == "" ]; then
+            ./$LOGER "$SCRIPT" "INF" "El usuario seleccion la carpeta por defecto de ${foldersName[$p]} que por defecto era la ruta $defaultDir" $LOGFILE
 			dirToInstall[$p]=$defaultDir;
 		else
 			verifyDir $input
 			answer=$?
 			if [ !$answer ]; then
 				dirToInstall[$p]=$input;
+                ./$LOGER "$SCRIPT" "INF" "El usuario seleccion para la carpeta de ${foldersName[$p]} la ruta $defaultDir" $LOGFILE
 			fi
 		fi
 		((++p))
@@ -292,7 +319,9 @@ mostrarDefiniciones() {
     writeUserValue;
 
 	clear;
-	echo "El sistema va a instalarse en los siguientes directorios";
+	Message1="El sistema va a instalarse en los siguientes directorios";
+	echo $Message1;
+    ./$LOGER "$SCRIPT" "INF" "$Message1" $LOGFILE
 
 	p=0;
 	for defaultDir in ${dirToInstall[*]}
@@ -300,6 +329,7 @@ mostrarDefiniciones() {
 		Message="Directorio de ${foldersName[$p]} ($defaultDir):"
 		echo "$Message"
 		((++p))
+        ./$LOGER "$SCRIPT" "INF" "$Message" $LOGFILE
  	done
 	echo "¿Desea continuar? (S/N)";
 	read answer
@@ -308,6 +338,7 @@ mostrarDefiniciones() {
 		end;
 	else
 	    echo "La instalacion a sido interrumpida"
+        ./$LOGER "$SCRIPT" "INF" "La instalacion ha sido interrumpida por el usuario" $LOGFILE
 	fi
 
 }
@@ -340,6 +371,8 @@ writeConfig () {
 	echo "validados-$VALIDDIR-$WHO-$WHEN" >> $CONFIGFILE
 	echo "reportes-$REPODIR-$WHO-$WHEN" >> $CONFIGFILE
 	echo "logs-$LOGDIR-$WHO-$WHEN" >> $CONFIGFILE
+
+    ./$LOGER "$SCRIPT" "INF" "Se genero un archivo .conf donde se guardan las rutas de las carpetas elegidas por el usuario" $LOGFILE
 }
 
 writeUserValue () {
@@ -359,19 +392,49 @@ writeUserValue () {
 	echo "$VALIDDIR" >> $USERVALUES
 	echo "$REPODIR" >> $USERVALUES
 	echo "$LOGDIR" >> $USERVALUES
+
+    ./$LOGER "$SCRIPT" "INF" "Se guardaron todos los valores de las carpetas elegidas por el usuario en un archivo temporal" $LOGFILE
 }
 
 end(){
+
     writeConfig;
+
     verifyFile $USERVALUES
     result=$?
     if [  "$result" -eq "1" ];then
         rm $USERVALUES;
     fi
+
+    verifyFile "$GRUPO/dirconf/$LOGFILE"
+    result=$?
+    if [  "$result" -eq "0" ];then
+        touch "$GRUPO/dirconf/$LOGFILE";
+        ./$LOGER "$SCRIPT" "INF" "Se creo un archivo nuevo de logeo en: $GRUPO/dirconf/$LOGFILE" $LOGFILE
+    fi
+
+    ./$LOGER "$SCRIPT" "INF" "Se movio el archivo temporal de logeo a: $GRUPO/dirconf/$LOGFILE" $LOGFILE
+
+    cat "$LOGFILE" >> "$GRUPO/dirconf/$LOGFILE"
+    rm $LOGFILE;
 }
 
-if [  "$1" -eq "-r" ];then
-    verifyFullInstall;
-else
-    install;
-fi
+main(){
+
+    verifyFile $LOGFILE
+    result=$?
+    if [  "$result" -eq "0" ];then
+        touch $LOGFILE;
+    fi
+
+    chmod +x $LOGER
+
+    if [  "$1" -eq "-r" ];then
+        ./$LOGER "$SCRIPT" "INF" "Se ejecuto la reparacion de la instalacion manualmente" $LOGFILE
+        verifyFullInstall;
+    else
+        install;
+    fi
+}
+
+main;
