@@ -4,8 +4,7 @@ GRUPO=~/Grupo02;
 CONFDIR=dirconf;
 CONFIGFILE="$GRUPO/$CONFDIR/config.conf";
 USERVALUES="$actualPosition/uservalues.tmp";
-binFolder=("mover.sh")
-maeFolder=("umbral.tab" "tllama.tab" "CdP.mae" "CdC.mae" "CdA.mae" "agentes.mae")
+LOGER=BIN/loger.sh
 
 verifyFile () {
     if [ -f "$1" ];then
@@ -24,25 +23,24 @@ verifyDir () {
 	fi
 }
 
-verifyInstallation(){
+install(){
 
 	echo "Iniciando instalación..."
     verifyFile $CONFIGFILE
     result=$?
     if [  "$result" -eq "1" ];then
-        echo "****************************************************";
-        echo "Estamos verificando si la instalacion esta completa...";
-        echo "****************************************************";
 		verifyFullInstall;
     else
-        echo "****************************************************";
-        echo "Card validator no está instalado en su computadora";
-        echo "****************************************************";
         initInstallation;
     fi
 }
 
 initInstallation(){
+
+
+    echo "****************************************************";
+    echo "Card validator no está instalado en su computadora";
+    echo "****************************************************";
 
     verifyPerl;
     perlInstaled=$?
@@ -77,6 +75,10 @@ uploadUserValues(){
 }
   
 verifyFullInstall(){
+
+    echo "****************************************************";
+    echo "Estamos verificando si la instalacion esta completa...";
+    echo "****************************************************";
 
 	BINDIR=$(grep '^ejecutables' $CONFIGFILE | cut -d '-' -f 2);
 	MAEDIR=$(grep '^maestros' $CONFIGFILE | cut -d '-' -f 2);
@@ -368,4 +370,8 @@ end(){
     fi
 }
 
-verifyInstallation;
+if [  "$1" -eq "-r" ];then
+    verifyFullInstall;
+else
+    install;
+fi
