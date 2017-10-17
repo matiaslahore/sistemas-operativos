@@ -294,7 +294,7 @@ do
 	
 		regOK=$i\;$cuenta\;$estadoCuenta\;$tarjVieja\;$denunciada\;$bloqueada\;\ \;\ \;$doc\;$nombre\;$nroTarj1\;$nroTarj2\;$nroTarj3\;$nroTarj4\;$fechaDsd\;$fechaHsta\;$documentoCuenta\;$denominacionCuenta\;$fechaAlta\;$categoria\;$limite\;$ENTIDAD_BANCARIA\;$alias;	
 
-		echo $regOK >> $VALIDADOS"/Plasticos_aceptados_$NUMERO_SESSION.txt";
+		echo $regOK >> $VALIDADOS"/Plasticos_emitidos_$NUMERO_SESSION";
 	
 		REG_OK_POR_ARCH=$((REG_OK_POR_ARCH + uno));
 	
