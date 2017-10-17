@@ -123,7 +123,8 @@ do
 	
 	if [ ! $aceptados -eq 0 ]; then #Valido que haya archivos en el directorio de aceptados
 
-		if [[ $(ps -ef | grep "$VALIDADOR") ]]; then #Valido que el validador no este corriendo
+		proc_validador=`ps -ef | grep -c "$VALIDADOR"`
+		if [[ $proc_validador -eq 1 ]]; then #Valido que el validador no este corriendo
 			bash "$EJECUTABLES""$VALIDADOR" &
 			pid_validador=$!
 			mensaje="$mensaje_ciclos"", ""$M_VALIDADOR_INVOC"$pid_validador
