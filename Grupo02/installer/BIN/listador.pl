@@ -3,6 +3,8 @@
 use Time::Local;
 use strict;
 
+print "Este es el listador\n";
+
 ########################################################
 ######################### MAIN #########################
 ########################################################
@@ -58,7 +60,7 @@ sub validarInput {
 		return 1; #TODOS LOS ARCHIVOS
 	}
 
-	opendir(DIR, $ENV{"ACEPTADOS"}."/");
+	opendir(DIR, $ENV{"VALIDADOS"}."/");
 	my @filesValidados = grep(/^Plasticos_/, readdir(DIR));
 	closedir(DIR);
 
@@ -185,7 +187,7 @@ sub definirInput {
 	my @vec = split(";", $_[0]);
 
 	if ( $_[0] eq "Plasticos_emitidos" ) {
-		opendir(DIR, $ENV{"ACEPTADOS"}."/");
+		opendir(DIR, $ENV{"VALIDADOS"}."/");
 		@vec = grep(/^Plasticos_emitidos_/, readdir(DIR));
 		closedir(DIR);
 	} else {
@@ -198,7 +200,7 @@ sub definirInput {
 
 	foreach my $elem (@vec){
 		if ($elem =~ "^Plasticos_emitidos") {
-			$elem = $ENV{"ACEPTADOS"}."/".$elem;
+			$elem = $ENV{"VALIDADOS"}."/".$elem;
 		} else {
 			$elem = $ENV{"REPORTES"}."/".$elem;
 		}
@@ -380,7 +382,7 @@ sub listarTarjetas {
 			my $regACmp = $_[0];
 			#comparo el campo "fechaHasta" con fecha actual
 
-			my @regFecha = split("/",$regACmp->[16]); #levanta formato DD/MM/YYYY
+			my @regFecha = split("/",$regACmp->[15]); #levanta formato DD/MM/YYYY
 			$regFecha[2] += 2000;
 
 			my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time);
@@ -614,7 +616,7 @@ sub actualizarDistribucion {
 				# >= HOY, $str = "NO DISTRIBUIR, tarjeta VENCIDA"
 				# >= (HOY-10 dias), $str = "NO DISTRIBUIR, VENTANA de distribucion insuficiente"
 
-				my @regFecha = split("/",$reg[16]); #levanta formato DD/MM/YYYY
+				my @regFecha = split("/",$reg[15]); #levanta formato DD/MM/YYYY
 				$regFecha[2] += 2000;
 
 				my $timeAct = timelocal(0,0,0,$mday,$mon-1,$year);
@@ -677,13 +679,13 @@ sub nuevoNombreListado {
 }
 
 sub ultimoArchivoEmitidos {
-	opendir(DIR, $ENV{"ACEPTADOS"}."/");
+	opendir(DIR, $ENV{"VALIDADOS"}."/");
 	my @files = grep(/^Plasticos_emitidos_/, readdir(DIR));
 	@files = sort @files;
 	my $numero = substr($files[@files-1], 19);
 	closedir(DIR);
 
-	return ($ENV{"ACEPTADOS"}."/Plasticos_emitidos_$numero");
+	return ($ENV{"VALIDADOS"}."/Plasticos_emitidos_$numero");
 }
 
 sub nuevoArchivoDistribucion {
