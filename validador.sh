@@ -3,38 +3,25 @@
 #valida que el archivo seleccionado de la carpeta ACEPTADOS
 #no haya sido procesado anteriormente.
 function validarProcesado {
-	f=${1##*/};
-	if [ -f $PROCESADOS/$f ]; then
-		validarDuplicado "$f";	
-		if [ $? = 0 ]; then
-			mv $ACEPTADOS/$f $RECHAZADOS;
-			MSJ_ERR="El archivo $1 ya ha sido procesado. Ha sido movido hacia la carpeta de rechazados";
-			bash "$EJECUTABLES""$LOGER" "VALIDADOR" "ALERTA" "$MSJ_ERR" "$LOGS""$LOG_VALIDADOR";
-			return 0;
-		fi;
-	else 
-		return 1; 
-	fi; 
-	
-}
+	if [ -f $PROCESADOS/$1 ]; then
+		#$1 es el nombre de archivo completo (sin path)	
 
-#Si entra acá es porque el archivo de la carpeta ACEPTADOS ya fue procesado
-#y verifica que no esté en la carpeta de RECHAZADOS; si no está, lo mueve allí; y si ya está
-#en RECHAZADOS, lo mueve a la carpeta de DUPLICADOS cambiandole el nombre para no perderlo.
-function validarDuplicado {
-	if [ -f $RECHAZADOS/$1 ]; then
-#		archivo ya procesado y rechazado. irá a la carpeta de duplicados con el nombre cambiado para no perderlo	
-		f=`echo $1 | sed 's/\..*//'`;
-		getNroDup $f;
-		ext=".txt";
-		mv $ACEPTADOS/$1 $ACEPTADOS/$f"_"$NUMERO_ARCH$ext;
-		mv $ACEPTADOS/$f"_"$NUMERO_ARCH$ext $DUPLICADOS/$f"_"$NUMERO_ARCH$ext;
-		MSJ_ERR="El archivo $f"_"$NUMERO_ARCH$ext será movido hacia la carpeta de duplicados con el nombre de $f$NUMERO_ARCH$ext";
-		bash "$EJECUTABLES""$LOGER" "VALIDADOR" "ALERTA" "$MSJ_ERR" "$LOGS""$LOG_VALIDADOR";
-		NUMERO_ARCH=0;
-		return 1;
-	fi; 
-	return 0;
+		bash "$EJECUTABLES""$MOVER" "$ACEPTADOS/$1" "$RECHAZADOS" "$DUPLICADOS"
+		result=$?
+
+		if [ $result = 0 ]; then #Cayo en rechazados
+			MSJ_ERR="El archivo $1 ya ha sido procesado. Ha sido movido hacia la carpeta de rechazados"
+		elif [[ $result = 1 || $result = 2 ]]; then #Cayo en duplicados
+			MSJ_ERR="El archivo $1 será movido hacia la carpeta de duplicados"
+		fi
+
+		bash "$EJECUTABLES""$LOGER" "VALIDADOR" "ALERTA" "$MSJ_ERR" "$LOGS""$LOG_VALIDADOR"
+		return 0
+
+	else
+		return 1
+	fi;
+	
 }
 
 ###################################################
@@ -173,16 +160,6 @@ done;
 NUMERO_SESSION=$((NUMERO_SESSION + 1));
 }
 
-function getNroDup {
-	for i in $(ls -F $DUPLICADOS | grep "$1" | sed 's/.*\_//' | sed 's/\..*//');
-	do	
-		if [ $i -gt $NUMERO_ARCH ]; then
-			NUMERO_ARCH=$i;
-		fi;	
-	done;
-NUMERO_ARCH=$((NUMERO_ARCH + 1));
-}
-
 #recibe la dirección de una carpeta, si no existe la crea.
 function crearDir {
 if ! [ -d $1 ]; then 
@@ -198,18 +175,17 @@ if [[ -z ${DIRABUS+x} || -z ${ACEPTADOS+x} || -z ${RECHAZADOS+x} || -z ${EJECUTA
 	exit
 fi
 
-PROCESADOS="/home/maciel/Documentos/SISOP/TP/aceptados/procesados";
-DUPLICADOS="/home/maciel/Documentos/SISOP/TP/duplicados";
-VALIDADOS="/home/maciel/Documentos/SISOP/TP/validados";
-CUMAE="/cumae";
-BAMAE="/bamae";
-TX_TARJETAS="/tx_tarjetas";
-LOGER="/loger.sh";
-LISTADOR="/listador.sh";
-LOG_VALIDADOR="/validador.log";
-PLASTICOS_RECHAZADOS="/Plasticos_rechazados.txt";
+PROCESADOS="$ACEPTADOS"/procesados
+DUPLICADOS="$RECHAZADOS""/dup/"
+CUMAE="/cumae"
+BAMAE="/bamae"
+TX_TARJETAS="/tx_tarjetas"
+LOGER="/loger.sh"
+LISTADOR="/listador.sh"
+LOG_VALIDADOR="/validador.log"
+MOVER="/mover.sh"
+PLASTICOS_RECHAZADOS="/Plasticos_rechazados.txt"
 
-NUMERO_ARCH=0;
 NUMERO_SESSION=1;
 
 MSJ_ERR="";
@@ -236,7 +212,8 @@ do
 
 	ENTIDAD_BANCARIA=`echo $f | sed 's/\_.*//'`;
 	validarProcesado "$i";
-	if [ "$?" == 0 ]; then
+	salida=$?
+	if [ "$salida" == 0 ]; then
 		continue;
 	fi;
 	
