@@ -2,28 +2,30 @@
 
 use Time::Local;
 use strict;
-use Data::Dumper qw(Dumper);
 
 ########################################################
 ######################### MAIN #########################
 ########################################################
-#my @procesos = (`ps -af | awk '{ print \$9 }' `);
-my @otrosListadores = grep(/^LISTADOR.pl/, `ps -af | awk '{ print \$9 }' `);
+if (@ARGV) {
+	#MODO MANUAL
 
-if (@otrosListadores >= 2) {
-	print "ERROR, Ya existe otro LISTADOR ejecutando!\n";
-} else {
-	if (@ARGV) {
-		#MODO MANUAL
+	#BUSCO SI HAY UN LISTADOR EJECUTANDOSE
+	my @otrosListadores = grep(/^LISTADOR.pl/, `ps -af | awk '{ print \$9 }' `);
+
+	if (@otrosListadores >= 2) {
+		print "ERROR, Ya existe otro LISTADOR ejecutando!\n";
+		print "Debe frenar el DEMONIO o esperar para poder ejecutar el LISTADOR manualmente\n";
+	} else {
 		if(&validarComandos(\@ARGV)) {
 			&listadorManual(\@ARGV);
 		}
-	} else {
-		#MODO AUTOMATICO
-		print "AUTOMATICO..\n";
-		&listadorAutomatico();
 	}
+
+} else {
+	#MODO AUTOMATICO
+	&listadorAutomatico();
 }
+
 ########################################################
 ###################### SUBRUTINAS ######################
 ########################################################
@@ -56,11 +58,12 @@ sub validarInput {
 		return 1; #TODOS LOS ARCHIVOS
 	}
 
-	opendir(DIR, "./VALIDADOS/");
+	opendir(DIR, $ENV{"ACEPTADOS"}."/");
 	my @filesValidados = grep(/^PLASTICOS_/, readdir(DIR));
 	closedir(DIR);
 
-	opendir(DIR, "./REPORTES/");
+	#opendir(DIR, "./REPORTES/");
+	opendir(DIR, $ENV{"REPORTES"}."/");
 	my @filesReportes = grep(/^PLASTICOS_/, readdir(DIR));
 	closedir(DIR);
 
@@ -182,12 +185,12 @@ sub definirInput {
 	my @vec = split(";", $_[0]);
 
 	if ( $_[0] eq "PLASTICOS_EMITIDOS" ) {
-		opendir(DIR, "./VALIDADOS/");
+		opendir(DIR, $ENV{"ACEPTADOS"}."/");
 		@vec = grep(/^PLASTICOS_EMITIDOS_/, readdir(DIR));
 		closedir(DIR);
 	} else {
 		if ($_[0] eq "PLASTICOS_DISTRIBUCION") {
-			opendir(DIR, "./REPORTES/");
+			opendir(DIR, $ENV{"REPORTES"}."/");
 			@vec = grep(/^PLASTICOS_DISTRIBUCION_/, readdir(DIR));
 			closedir(DIR);
 		}
@@ -195,9 +198,9 @@ sub definirInput {
 
 	foreach my $elem (@vec){
 		if ($elem =~ "^PLASTICOS_EMITIDOS") {
-			$elem = "./VALIDADOS/".$elem;
+			$elem = $ENV{"ACEPTADOS"}."/".$elem;
 		} else {
-			$elem = "./REPORTES/".$elem;
+			$elem = $ENV{"REPORTES"}."/".$elem;
 		}
 	}
 
@@ -654,11 +657,11 @@ sub actualizarDistribucion {
 }
 
 sub nuevoNombreListado {
-	opendir(DIR, "./REPORTES/");
+	opendir(DIR, $ENV{"REPORTES"}."/");
 	my @files = grep(/^LISTADO_/, readdir(DIR));
 
 	if(!@files) {
-		return "./REPORTES/LISTADO_1";
+		return ($ENV{"REPORTES"}."/LISTADO_1");
 	}
 
 	my @numeros;
@@ -670,25 +673,25 @@ sub nuevoNombreListado {
 	my $numero = $numerosSort[@numerosSort-1] + 1; 
 	closedir(DIR);
 
-	return "REPORTES/LISTADO_".$numero;
+	return ($ENV{"REPORTES"}."/LISTADO_".$numero);
 }
 
 sub ultimoArchivoEmitidos {
-	opendir(DIR, "./VALIDADOS/");
+	opendir(DIR, $ENV{"ACEPTADOS"}."/");
 	my @files = grep(/^PLASTICOS_EMITIDOS_/, readdir(DIR));
 	@files = sort @files;
 	my $numero = substr($files[@files-1], 19);
 	closedir(DIR);
 
-	return "./VALIDADOS/PLASTICOS_EMITIDOS_$numero";
+	return ($ENV{"ACEPTADOS"}."/PLASTICOS_EMITIDOS_$numero");
 }
 
 sub nuevoArchivoDistribucion {
-	opendir(DIR, "./REPORTES/");
+	opendir(DIR, $ENV{"REPORTES"}."/");
 	my @files = grep(/^PLASTICOS_DISTRIBUCION_/, readdir(DIR));
 
 	if(!@files) {
-		return "./REPORTES/PLASTICOS_DISTRIBUCION_1";
+		return ($ENV{"REPORTES"}."/PLASTICOS_DISTRIBUCION_1");
 	}
 
 	my @numeros;
@@ -697,11 +700,10 @@ sub nuevoArchivoDistribucion {
 	}
 
 	my @numerosSort = sort {$a <=> $b} @numeros;
-	my $numero = $numerosSort[@numerosSort-1] + 1; 
-	print "NUMERO: $numero\n";
+	my $numero = $numerosSort[@numerosSort-1] + 1;
 	closedir(DIR);
 
-	return "./REPORTES/PLASTICOS_DISTRIBUCION_$numero";
+	return ($ENV{"REPORTES"}."/PLASTICOS_DISTRIBUCION_$numero");
 }
 
 ########################################################
