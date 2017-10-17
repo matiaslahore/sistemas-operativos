@@ -33,8 +33,8 @@
 	    ejecutar el instalador:
 
 		$ cd {ruta a donde se genero la carpeta grupo02}
-		$ cd grupo02
-		$ cd installer
+		$ cd Grupo02
+		$ cd Grupo02
 		$ ./installer.sh
 	
 	5. Luego de haber seguido los pasos de instalación, se podrá ver que se crearon sub carpetas 
