@@ -297,8 +297,20 @@ makeDirs() {
 			verifyDir $input
 			answer=$?
 			if [ !$answer ]; then
-				dirToInstall[$p]=$input;
-                ./$LOGER "$SCRIPT" "INF" "El usuario seleccion para la carpeta de ${foldersName[$p]} la ruta $defaultDir" $LOGFILE
+			    while [ "$input"  == "$GRUPO/dirconf" ]
+                do
+                    echo "La carpeta $GRUPO/dirconf esta reservada para el sistema, por favor elija otra";
+                    Message="Defina el directorio de ${foldersName[$p]} ($defaultDir):"
+                    echo "$Message"
+                    read input
+                done
+                if [  "$input"  == "" ]; then
+                    ./$LOGER "$SCRIPT" "INF" "El usuario seleccion la carpeta por defecto de ${foldersName[$p]} que por defecto era la ruta $defaultDir" $LOGFILE
+                    dirToInstall[$p]=$defaultDir;
+                else
+                    dirToInstall[$p]=$input;
+                    ./$LOGER "$SCRIPT" "INF" "El usuario seleccion para la carpeta de ${foldersName[$p]} la ruta $input" $LOGFILE
+                fi
 			fi
 		fi
 		((++p))
