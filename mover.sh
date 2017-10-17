@@ -25,14 +25,17 @@ extension=${nombre_archivo##*.}
 
 if [ ! -f "$destino"/"$nombre_archivo" ]; then #Si no existe el archivo, lo muevo a la carpeta destino
 	mv "$origen" "$destino"/"$nombre_archivo"
+	exit 0
 else
 	mkdir -p "$alternativa" #Si no existe, creo el directorio de duplicados
 	#Obtengo el codigo a agregar a los archivos repetidos para no perderlos
-	if [ -f "$alternativa"/"$nombre_archivo" ]; then
+	if [ ! -f "$alternativa"/"$nombre_archivo" ]; then
+		mv "$origen" "$alternativa"/"$nombre_archivo"
+		exit 1
+	else
 		getCodigoDuplicado "$alternativa" "$sin_extension"
 		codigo=$?
 		mv "$origen" "$alternativa"/"$sin_extension""-""$codigo"".""$extension"
-	else
-		mv "$origen" "$alternativa"/"$nombre_archivo"
+		exit 2
 	fi
 fi
