@@ -2,10 +2,10 @@
 #FIUBA - Sistemas Operativos ( 75.08 ) - Segundo Cuatrimestre 2017
    GRUPO N° 2
         
-    , 
-    , 
-    , 
-    , 
+    Bazzana, Matias 
+    Itchart, Maciel 
+    Casal, Joaquin
+    Sosa, Santiago 
     Lahore, Matias 
 
 ********************************************************************************************
@@ -72,4 +72,53 @@ Listado de informacion de los plasticos de las tarjetas
 
     Luego de haber procesado los archivos, se pueden generar consultas e informes usando el comando:
     
-        listador.pl 
+        perl LISTADOR.pl
+        
+    
+    MODO MANUAL
+    
+    Ejemplo de uso:
+    ~ perl LISTADOR.pl -i="Plasticos_emitidos_1;Plasticos_emitidos_2" -l="cuentas=ACTIVAS" -f="entidad=2,99;docCuenta=40355277"
+    
+    Modo de uso: perl LISTADOR.pl [-i]="[inputs]" [-l]="[listado]" [-f]="[filtros]"
+    -i	~ Input:
+    · Un archivo especifico de lasticos_emitidos o de plasticos_distribucion
+    · Varios archivos específicos(de emitidos, de distribucion o de ambos)
+    · Todos los archivos de plasticos_emitidos (default)
+    ="Plasticos_emitidos"
+    · Todos los archivos de plasticos_distribucion
+    ="Plasticos_distribucion"
+    -l	~ Opciones de listados:
+    =cuentas	· Listados de cuentas:
+    General 
+    =ACTIVAS Cuentas activas
+    =BCJ	Cuentas dadas de baja, ctx, o jud
+    =tarjetas	· Listados de tarjetas:
+    General 
+    =denunciadas	Denunciadas
+    =bloqueadas	Bloqueadas
+    =vencidas Vencidas
+    =condDistr	· Listado de condición de distribución
+    -> para este listado solo se solicita filtro por condición de distribución
+    =cuentaP	· Listado de la situación de una cuenta en particular
+    -> para este listado solo se solicita filtro por documento cuenta
+    =tarjetaP	· Listado de la situación de una tarjeta en particular
+    -> para este listado solo se solicita filtro por documento tarjeta
+    -f	~ Opciones de filtros
+    =entidad	· Filtro por entidad
+    = (una, rango de entidades, todas)
+    =fuente	· Filtro por fuente
+    = (una o todas)
+    =condDistr	· Filtro por condición de distribución (default *)
+    = sub-string
+    =docCuenta	· Filtro por documento cuenta: (default *)
+    = sub-string
+    =docTarjeta	· Filtro por documento tarjeta: (default *)
+    = sub-string
+    
+    ';'	-> SEPARADOR DE ARCHIVOS Y FILTROS
+    ','	-> SEPARADOR DE RANGOS
+    
+    *DURANTE LA EJECUCION DEL LISTADOR PERMITE:
+    · VOLVER A LISTAR EL INPUT N VECES
+    · APLICAR FILTROS N VECES AL LISTADO GENERADO
