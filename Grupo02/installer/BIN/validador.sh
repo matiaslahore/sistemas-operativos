@@ -304,7 +304,7 @@ do
 	done < $ACEPTADOS/$i;
 	
 	#logeo cuantos registros se aceptaron/rechazaron en el archivo recientemente recorrido.
-	MSJ_ERR="Se aceptaron ""$REG_POR_ARCH"" registros del archivo ""$f";
+	MSJ_ERR="Se aceptaron ""$REG_OK_POR_ARCH"" registros del archivo ""$f";
 	bash "$EJECUTABLES""$LOGER" "VALIDADOR" "INFORMATIVO" "$MSJ_ERR" "$LOGS""$LOG_VALIDADOR";
 	REG_RECH_POR_ARCH=$((REG_POR_ARCH - REG_OK_POR_ARCH));
 	MSJ_ERR="Se rechazaron ""$REG_RECH_POR_ARCH"" registros del archivo ""$f";
