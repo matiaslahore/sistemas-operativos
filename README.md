@@ -58,7 +58,8 @@ Ejecución
 
 		$ ./preparar.sh
 
-    3. Ahora el programa comenzo a ejecutarse automaticamente. Si decide ejecutarlo manualmente puede hacerlo mediante el siguiente comando:
+    3. Ahora el programa comenzo a ejecutarse automaticamente. Si decide ejecutarlo manualmente 
+        puede hacerlo mediante el siguiente comando:
 	   
  		$ ./start.sh
 
