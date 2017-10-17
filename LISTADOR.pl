@@ -2,44 +2,43 @@
 
 use Time::Local;
 use strict;
-use warnings;
 use Data::Dumper qw(Dumper);
 
 ########################################################
 ######################### MAIN #########################
 ########################################################
-# print Dumper \@ARGV;
+#my @procesos = (`ps -af | awk '{ print \$9 }' `);
+my @otrosListadores = grep(/^LISTADOR.pl/, `ps -af | awk '{ print \$9 }' `);
 
-if (@ARGV) {
-	#MODO MANUAL
-	if(&validarComandos(\@ARGV)) {
-		&listadorManual(\@ARGV);
-	}
+if (@otrosListadores >= 2) {
+	print "ERROR, Ya existe otro LISTADOR ejecutando!\n";
 } else {
-	#MODO AUTOMATICO
-	print "AUTOMATICO..\n";
-	&listadorAutomatico();
+	if (@ARGV) {
+		#MODO MANUAL
+		if(&validarComandos(\@ARGV)) {
+			&listadorManual(\@ARGV);
+		}
+	} else {
+		#MODO AUTOMATICO
+		print "AUTOMATICO..\n";
+		&listadorAutomatico();
+	}
 }
-
 ########################################################
 ###################### SUBRUTINAS ######################
 ########################################################
 sub validarComandos {
-	#my @comandos;
-
 	if( ($ARGV[0] =~ "^-i=") and ($ARGV[1] =~ "^-l=") ){
-		#$comandos[0] = substr($ARGV[0],3);
-		#$comandos[1] = substr($ARGV[1],3);
 		if( &validarInput($ARGV[0]) and &validarListado($ARGV[1]) ) {
-			if( !($ARGV[2]) or ($ARGV[2] =~ "^-f=") ) {
+			if (!$ARGV[2]) {
+				return 1;
+			} elsif( $ARGV[2] =~ "^-f=" ) {
 				if(&validarFiltro($ARGV[2])) {
-					#$comandos[2] = substr($ARGV[2],3);
 					return 1;
 				}
 			}
 		}
 	}
-	#if(grep $_ eq "^-[ilf]=", @$ARGV);
 
 	if( ($ARGV[0] eq "-h") or ($ARGV[0] eq "-help") ) {
 		&imprimirAyuda();
@@ -182,7 +181,7 @@ sub listadorManual {
 sub definirInput {
 	my @vec = split(";", $_[0]);
 
-	if ($_[0] eq "PLASTICOS_EMITIDOS") {
+	if ( $_[0] eq "PLASTICOS_EMITIDOS" ) {
 		opendir(DIR, "./VALIDADOS/");
 		@vec = grep(/^PLASTICOS_EMITIDOS_/, readdir(DIR));
 		closedir(DIR);
@@ -259,8 +258,8 @@ sub definirListador {
 }
 
 sub definirFiltro {
-	my @aux = split(";", $_[0]);
 	my @vec;
+	my @aux = split(";", $_[0]);
 
 	foreach (@aux) {
 		push @vec, split("=", $_);
@@ -388,9 +387,8 @@ sub listarTarjetas {
 
 			return ($timeaCmp <= $timeAct);
 		},
-		"" => sub {
-			#si no me pasa nada es el caso general?
-			return 1; #true
+		"*" => sub {
+			return 1;
 		},
 	);
 
@@ -434,6 +432,10 @@ sub filtroPorEntidad {
 	#$_[1]; -> (una, rango, todas) -> my (@list) = @_[1]; (PASO UNA LISTA)
 	#return $_[0]; -> listadoFiltrado
 	my ($filtroVec, $regVec) = @_;
+
+	if($filtroVec->[0] eq "*") {
+		return 1;
+	}
 	
 	return ( ($regVec->[22] >= $filtroVec->[0]) and ($regVec->[22] <= $filtroVec->[1]) );
 }
@@ -444,18 +446,22 @@ sub filtroPorFuente {
 	#$_[1]; -> (una o todas)
 	#return $_[0]; -> listadoFiltrado
 	my ($condFuente, $regVec) = @_;
+
+	if($condFuente eq "*") {
+		return 1;
+	}
 	
-	return ($regVec->[0] eq $condFuente); # =~ -> EXPRESIONES REGULARES
+	return ($regVec->[0] eq $condFuente);
 }
 
 sub filtroPorCondicionDeDistribucion {
 	#filtro por condición de distribución (default * ) (búsqueda por sub-string, ejemplo " BAJA" "NO DISTRIBUIR" "DENU")
-	#$_[0]; -> listado
-	#$_[1]; -> (busca x sub-string)
-	#return $_[0]; -> listadoFiltrado
-
 	my ($condDistribucion, $regVec) = @_;
-	
+
+	# if (! $condDistribucion) {
+	# 	return 1;
+	# }
+
 	return ($regVec->[6] =~ $condDistribucion); # =~ -> EXPRESIONES REGULARES
 }
 
@@ -539,22 +545,22 @@ sub imprimirGeneral {
 }
 
 sub listadorAutomatico {
-	#AGARRAR EL ULTIMO PLASTICOS EMITIDOS..
-	#ES X NUMERO SEC -> EL ULTIMO ES EL MAS NUEVO..
+	#AGARRAR EL ULTIMO PLASTICOS EMITIDOS
+	#ES X NUMERO SEC -> EL ULTIMO ES EL MAS NUEVO
 
-	# my $input = &ultimoArchivoInput();
-	# my $nroSec = &ultimoArchivoOutput();
-	my $input = "./VALIDADOS/PLASTICOS_EMITIDOS_2";
-	my $output = "./REPORTES/PLASTICOS_DISTRIBUCION_3";
+	my $input = &ultimoArchivoEmitidos();
+	my $output = &nuevoArchivoDistribucion();
 
 	&actualizarDistribucion($input, $output);
+
+	print"Se genero: $output; con: $input\n";
 }
 
 sub actualizarDistribucion {
 	my ($input,$output) = @_;
 
-	open (ENT,"<$input") || die "ERROR: No puedo abrir el fichero de entrada\n";
-	open (SAL,">$output") || die "ERROR: No puedo abrir el fichero de salida\n";
+	open (ENT,"<$input") || die " ERROR: No puedo abrir el fichero de entrada \n :$input\n";
+	open (SAL,">$output") || die "ERROR: No puedo abrir el fichero de salida \n :$output\n";
 
 	while (<ENT>) {
 		chomp($_); #con chomp elimino el fin de linea, $_ contiene el último registro leido de un fichero.
@@ -650,11 +656,52 @@ sub actualizarDistribucion {
 sub nuevoNombreListado {
 	opendir(DIR, "./REPORTES/");
 	my @files = grep(/^LISTADO_/, readdir(DIR));
-	@files = sort @files;
-	my $numero = substr($files[@files-1],8) + 1;
+
+	if(!@files) {
+		return "./REPORTES/LISTADO_1";
+	}
+
+	my @numeros;
+	foreach (@files) {
+		push @numeros, substr($_ , 8);
+	}
+
+	my @numerosSort = sort {$a <=> $b} @numeros;
+	my $numero = $numerosSort[@numerosSort-1] + 1; 
 	closedir(DIR);
 
 	return "REPORTES/LISTADO_".$numero;
+}
+
+sub ultimoArchivoEmitidos {
+	opendir(DIR, "./VALIDADOS/");
+	my @files = grep(/^PLASTICOS_EMITIDOS_/, readdir(DIR));
+	@files = sort @files;
+	my $numero = substr($files[@files-1], 19);
+	closedir(DIR);
+
+	return "./VALIDADOS/PLASTICOS_EMITIDOS_$numero";
+}
+
+sub nuevoArchivoDistribucion {
+	opendir(DIR, "./REPORTES/");
+	my @files = grep(/^PLASTICOS_DISTRIBUCION_/, readdir(DIR));
+
+	if(!@files) {
+		return "./REPORTES/PLASTICOS_DISTRIBUCION_1";
+	}
+
+	my @numeros;
+	foreach (@files) {
+		push @numeros, substr($_ , 23);
+	}
+
+	my @numerosSort = sort {$a <=> $b} @numeros;
+	my $numero = $numerosSort[@numerosSort-1] + 1; 
+	print "NUMERO: $numero\n";
+	closedir(DIR);
+
+	return "./REPORTES/PLASTICOS_DISTRIBUCION_$numero";
 }
 
 ########################################################
