@@ -49,8 +49,6 @@ do
 	while read novedad
 	do
 		mensaje_ciclos="Ciclo número "$CICLO
-		nombre_archivo=${novedad##*/}
-
 
 		#Validar existencia de entidad
 		existe_entidad=false
@@ -99,7 +97,7 @@ do
 		if [ ! -s "$novedad" ]; then
 			mensaje="$mensaje_ciclos"", ""$M_NOV_RECHAZADA""$novedad"". ""$M_ARCH_VACIO"
 			bash "$EJECUTABLES""$LOGER" "$DEMONIO" "$M_ERROR" "$mensaje" "$LOGS""$LOG_DEMONIO"
-			bash "$EJECUTABLES""$MOVER" "$novedad" "$RECHAZADOS" "$nombre_archivo" "$RECHAZADOS_DUP"
+			bash "$EJECUTABLES""$MOVER" "$novedad" "$RECHAZADOS" "$RECHAZADOS_DUP"
 			continue
 		fi
 
@@ -109,7 +107,7 @@ do
 		if [ ! "$mime_type" == "text/plain;" ]; then
 			mensaje="$mensaje_ciclos"", ""$M_NOV_RECHAZADA""$novedad"", ""$M_ARCH_INVAL"
 			bash "$EJECUTABLES""$LOGER" "$DEMONIO" "$M_ERROR" "$mensaje" "$LOGS""$LOG_DEMONIO"
-			bash "$EJECUTABLES""$MOVER" "$novedad" "$RECHAZADOS" "$nombre_archivo" "$RECHAZADOS_DUP"
+			bash "$EJECUTABLES""$MOVER" "$novedad" "$RECHAZADOS" "$RECHAZADOS_DUP"
 			continue
 		fi
 
@@ -117,7 +115,7 @@ do
 		#Novedad aceptada
 		mensaje="$mensaje_ciclos"", ""$M_NOV_ACEPTADA""$novedad"
 		bash "$EJECUTABLES""$LOGER" "$DEMONIO" "$M_INFO" "$mensaje" "$LOGS""$LOG_DEMONIO"
-		bash "$EJECUTABLES""$MOVER" "$novedad" "$ACEPTADOS" "$nombre_archivo" "$ACEPTADOS_DUP"
+		bash "$EJECUTABLES""$MOVER" "$novedad" "$ACEPTADOS" "$ACEPTADOS_DUP"
 
 	done
 
