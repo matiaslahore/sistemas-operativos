@@ -60,7 +60,6 @@ Ejecución
 
     3. Ahora el programa comenzo a ejecutarse automaticamente. Si decide ejecutarlo manualmente 
         puede hacerlo mediante el siguiente comando:
-	   
  		$ ./start.sh
 
     4. Si el usuario quiere detener la ejecucion de este demonio, deberá escribir:
