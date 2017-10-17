@@ -406,6 +406,10 @@ end(){
         rm $USERVALUES;
     fi
 
+    echo "La instalación finalizo con exito!";
+
+    ./$LOGER "$SCRIPT" "INF" "La instalación finalizo con exito!" $LOGFILE
+
     verifyFile "$GRUPO/dirconf/$LOGFILE"
     result=$?
     if [  "$result" -eq "0" ];then
