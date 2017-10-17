@@ -11,7 +11,7 @@
 ********************************************************************************************
    Descarga del paquete
 ********************************************************************************************
-       Usted podra descargar el paquete directemente: http:// Grupo02.tgz.gz
+       Usted podra descargar el paquete directemente: https://drive.google.com/open?id=0B5NllDEIfHpOUkx3X01sb25nbWM
 
 ********************************************************************************************
    Requisitos de instalación
