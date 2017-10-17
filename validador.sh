@@ -167,10 +167,8 @@ if ! [ -d $1 ]; then
 fi;	
 }
 
-echo "El validador inició!";
-
 #Valido que las variables de entorno hayan sido inicializadas
-if [[ -z ${DIRABUS+x} || -z ${ACEPTADOS+x} || -z ${RECHAZADOS+x} || -z ${EJECUTABLES+x} || -z ${MAESTROS+x} || -z ${LOGS+x} ]]; then
+if [[ -z ${DIRABUS+x} || -z ${ACEPTADOS+x} || -z ${RECHAZADOS+x} || -z ${EJECUTABLES+x} || -z ${MAESTROS+x} || -z ${LOGS+x} || -z ${VALIDADOS+x} ]]; then
 	echo "Sistema sin inicializar"
 	exit
 fi
@@ -181,7 +179,7 @@ CUMAE="/cumae"
 BAMAE="/bamae"
 TX_TARJETAS="/tx_tarjetas"
 LOGER="/loger.sh"
-LISTADOR="/listador.sh"
+LISTADOR="/listador.pl"
 LOG_VALIDADOR="/validador.log"
 MOVER="/mover.sh"
 PLASTICOS_RECHAZADOS="/Plasticos_rechazados.txt"
@@ -321,14 +319,24 @@ do
 	mv $ACEPTADOS/$i $PROCESADOS/$i;
 	
 done;
-echo "El validador termino!";
+
 MSJ_ERR="El VALIDADOR del DEMONIO terminó."
 bash "$EJECUTABLES""$LOGER" "VALIDADOR" "ERROR" "$MSJ_ERR" "$LOGS""$LOG_VALIDADOR";
 
+
+#Chequeo que haya información para llamar al listador
 if [ $LLAMAR_LISTADOR -gt 0 ]; then
-	MSJ_ERR="Se llamará al listador."
-	bash "$EJECUTABLES""$LOGER" "VALIDADOR" "INFORMATIVO" "$MSJ_ERR" "$LOGS""$LOG_VALIDADOR";
-	bash "$EJECUTABLES""$LISTADOR";
+	#Chequeo que el listador no esté corriendo.
+	proc_listador=`ps -ef | grep -c "$LISTADOR"`
+	if [[ $proc_listador -eq 1 ]]; then #Valido que el validador no este corriendo
+		MSJ_ERR="Se llamará al listador."
+		bash "$EJECUTABLES""$LOGER" "VALIDADOR" "INFORMATIVO" "$MSJ_ERR" "$LOGS""$LOG_VALIDADOR";
+		perl "$EJECUTABLES""$LISTADOR";
+	else 	
+		MSJ_ERR="No se pudo llamar al listador porque ya está corriendo."
+		bash "$EJECUTABLES""$LOGER" "VALIDADOR" "INFORMATIVO" "$MSJ_ERR" "$LOGS""$LOG_VALIDADOR";
+	fi;	
+	
 else 
 	MSJ_ERR="No hay información para llamar al listador."
 	bash "$EJECUTABLES""$LOGER" "VALIDADOR" "INFORMATIVO" "$MSJ_ERR" "$LOGS""$LOG_VALIDADOR";
