@@ -103,8 +103,8 @@ do
 
 
 		#Valido que sea un archivo de texto
-		mime_type=$(file -i "$novedad" | cut -d' ' -f2)
-		if [ ! "$mime_type" == "text/plain;" ]; then
+		mime_type=$(file -b --mime-type "$novedad")
+		if [ ! "$mime_type" == "text/plain" ]; then
 			mensaje="$mensaje_ciclos"", ""$M_NOV_RECHAZADA""$novedad"", ""$M_ARCH_INVAL"
 			bash "$EJECUTABLES""$LOGER" "$DEMONIO" "$M_ERROR" "$mensaje" "$LOGS""$LOG_DEMONIO"
 			bash "$EJECUTABLES""$MOVER" "$novedad" "$RECHAZADOS" "$RECHAZADOS_DUP"
