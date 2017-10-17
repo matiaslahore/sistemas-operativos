@@ -54,21 +54,21 @@ sub validarComandos {
 sub validarInput {
 	my @input = split(";", substr($_[0],3));
 
-	if( ($input[0] eq "PLASTICOS_EMITIDOS") or ($input[0] eq "PLASTICOS_DISTRIBUCION") ) {
+	if( ($input[0] eq "Plasticos_emitidos") or ($input[0] eq "Plasticos_distribucion") ) {
 		return 1; #TODOS LOS ARCHIVOS
 	}
 
 	opendir(DIR, $ENV{"ACEPTADOS"}."/");
-	my @filesValidados = grep(/^PLASTICOS_/, readdir(DIR));
+	my @filesValidados = grep(/^Plasticos_/, readdir(DIR));
 	closedir(DIR);
 
 	#opendir(DIR, "./REPORTES/");
 	opendir(DIR, $ENV{"REPORTES"}."/");
-	my @filesReportes = grep(/^PLASTICOS_/, readdir(DIR));
+	my @filesReportes = grep(/^Plasticos_/, readdir(DIR));
 	closedir(DIR);
 
 	foreach my $elem (@input) {
-		if ($elem =~ "_EMITIDOS") {
+		if ($elem =~ "_emitidos") {
 			if (!(grep $_ eq $elem, @filesValidados)) {
 				return 0;
 			}
@@ -184,20 +184,20 @@ sub listadorManual {
 sub definirInput {
 	my @vec = split(";", $_[0]);
 
-	if ( $_[0] eq "PLASTICOS_EMITIDOS" ) {
+	if ( $_[0] eq "Plasticos_emitidos" ) {
 		opendir(DIR, $ENV{"ACEPTADOS"}."/");
-		@vec = grep(/^PLASTICOS_EMITIDOS_/, readdir(DIR));
+		@vec = grep(/^Plasticos_emitidos_/, readdir(DIR));
 		closedir(DIR);
 	} else {
-		if ($_[0] eq "PLASTICOS_DISTRIBUCION") {
+		if ($_[0] eq "Plasticos_distribucion") {
 			opendir(DIR, $ENV{"REPORTES"}."/");
-			@vec = grep(/^PLASTICOS_DISTRIBUCION_/, readdir(DIR));
+			@vec = grep(/^Plasticos_distribucion_/, readdir(DIR));
 			closedir(DIR);
 		}
 	}
 
 	foreach my $elem (@vec){
-		if ($elem =~ "^PLASTICOS_EMITIDOS") {
+		if ($elem =~ "^Plasticos_emitidos") {
 			$elem = $ENV{"ACEPTADOS"}."/".$elem;
 		} else {
 			$elem = $ENV{"REPORTES"}."/".$elem;
@@ -678,20 +678,20 @@ sub nuevoNombreListado {
 
 sub ultimoArchivoEmitidos {
 	opendir(DIR, $ENV{"ACEPTADOS"}."/");
-	my @files = grep(/^PLASTICOS_EMITIDOS_/, readdir(DIR));
+	my @files = grep(/^Plasticos_emitidos_/, readdir(DIR));
 	@files = sort @files;
 	my $numero = substr($files[@files-1], 19);
 	closedir(DIR);
 
-	return ($ENV{"ACEPTADOS"}."/PLASTICOS_EMITIDOS_$numero");
+	return ($ENV{"ACEPTADOS"}."/Plasticos_emitidos_$numero");
 }
 
 sub nuevoArchivoDistribucion {
 	opendir(DIR, $ENV{"REPORTES"}."/");
-	my @files = grep(/^PLASTICOS_DISTRIBUCION_/, readdir(DIR));
+	my @files = grep(/^Plasticos_distribucion_/, readdir(DIR));
 
 	if(!@files) {
-		return ($ENV{"REPORTES"}."/PLASTICOS_DISTRIBUCION_1");
+		return ($ENV{"REPORTES"}."/Plasticos_distribucion_1");
 	}
 
 	my @numeros;
@@ -703,7 +703,7 @@ sub nuevoArchivoDistribucion {
 	my $numero = $numerosSort[@numerosSort-1] + 1;
 	closedir(DIR);
 
-	return ($ENV{"REPORTES"}."/PLASTICOS_DISTRIBUCION_$numero");
+	return ($ENV{"REPORTES"}."/Plasticos_distribucion_$numero");
 }
 
 ########################################################
@@ -714,13 +714,13 @@ sub imprimirAyuda {
 	print "######################## HELP ########################\n";
 	print "############ MODO MANUAL\n";
 	print "EJEMPLO:\n";
-	print "~ perl LISTADOR.pl -i=\"PLASTICOS_EMITIDOS_1;PLASTICOS_EMITIDOS_2\" -l=\"cuentas=ACTIVAS\" -f=\"entidad=2,99;docCuenta=40355277\"\n";
+	print "~ perl LISTADOR.pl -i=\"Plasticos_emitidos_1;Plasticos_emitidos_2\" -l=\"cuentas=ACTIVAS\" -f=\"entidad=2,99;docCuenta=40355277\"\n";
 	print "Modo de uso: LISTADOR.pl [-i]=\"[inputs]\" [-l]=\"[listado]\" [-f]=\"[filtros]\"\n";
 	print "	-i			~ Input:\n";
-	print " 					· Un archivo especifico de plasticos_emitidos o de plasticos_distribucion\n";
+	print " 					· Un archivo especifico de Plasticos_emitidos o de Plasticos_distribucion\n";
 	print " 					· Varios archivos específicos(de emitidos, de distribucion o de ambos)\n";
-	print " 					· Todos los archivos de plasticos_emitidos (default)\n";
-	print " 					· Todos los archivos de plasticos_distribucion\n\n";
+	print " 					· Todos los archivos de Plasticos_emitidos (default)\n";
+	print " 					· Todos los archivos de Plasticos_distribucion\n\n";
 	print "	-l			~ Opciones de listados:\n";
 	print "	=cuentas		· Listados de cuentas:\n";
 	print "					General \n";
