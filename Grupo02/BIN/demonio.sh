@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 #Valido que las variables de entorno hayan sido inicializadas
 
 if [[ -z ${DIRABUS+x} || -z ${ACEPTADOS+x} || -z ${RECHAZADOS+x} || -z ${EJECUTABLES+x} || -z ${MAESTROS+x} || -z ${LOGS+x} ]]; then
