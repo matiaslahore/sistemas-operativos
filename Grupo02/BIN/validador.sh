@@ -12,7 +12,7 @@ function validarProcesado {
 		if [ $result = 0 ]; then #Cayo en rechazados
 			MSJ_ERR="El archivo $1 ya ha sido procesado. Ha sido movido hacia la carpeta de rechazados"
 		elif [[ $result = 1 || $result = 2 ]]; then #Cayo en duplicados
-			MSJ_ERR="El archivo $1 sera movido hacia la carpeta de duplicados"
+			MSJ_ERR="El archivo $1 será movido hacia la carpeta de duplicados"
 		fi
 
 		bash "$EJECUTABLES""$LOGER" "VALIDADOR" "ALERTA" "$MSJ_ERR" "$LOGS""$LOG_VALIDADOR"
@@ -32,18 +32,22 @@ function validarNroTarjeta {
 if [[ $1 =~ [0-9][0-9][0-9][0-9]$ ]]; then
 	return 0;
 else 
-	MSJ_ERR="Registro nro ""$REG_POR_ARCH"": ERROR. El numero de tarjeta es invalido"
+	MSJ_ERR="Registro n°""$REG_POR_ARCH"": ERROR. EL número de tarjeta es inválido"
 	bash "$EJECUTABLES""$LOGER" "VALIDADOR" "ERROR" "$MSJ_ERR" "$LOGS""$LOG_VALIDADOR";
 	return 1;
 fi;
 }
 
 function validarNroCuenta {
+echo $1;
 if [[ $1 =~ [0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]$ ]]; then
+	echo $1;
 	validarExistenciaNroCuenta $1;
-	return $?;
+	resp=$?;
+	echo $resp;
+	return $resp;
 else 
-	MSJ_ERR="Registro nro ""$REG_POR_ARCH"": ERROR. El numero de documento es invalido";
+	MSJ_ERR="Registro n°""$REG_POR_ARCH"": ERROR. El número de cuenta es inválido";
 	bash "$EJECUTABLES""$LOGER" "VALIDADOR" "ERROR" "$MSJ_ERR" "$LOGS""$LOG_VALIDADOR";
 	return 1;
 fi;
@@ -52,7 +56,7 @@ fi;
 function validarExistenciaNroCuenta {
 nroCuenta=`grep $1 $MAESTROS$CUMAE | sed 's/\(.*\);\(.*\);\(.*\);\(.*\);\(.*\);\(.*\);\(.*\);\(.*\)/\2/'`;
 if [ "$nroCuenta" = "" ]; then 
-	MSJ_ERR="Registro nro ""$REG_POR_ARCH"": ERROR. La cuenta es inexistente";
+	MSJ_ERR="Registro n°""$REG_POR_ARCH"": ERROR. La cuenta es inexistente";
 	bash "$EJECUTABLES""$LOGER" "VALIDADOR" "ERROR" "$MSJ_ERR" "$LOGS""$LOG_VALIDADOR";
 	return 1;
 fi;
@@ -62,57 +66,58 @@ function validarFechas {
 #valido "Fecha Desde"
 diaDsd=`echo $1 | sed 's|\(.*\)/\(.*\)/\(.*\)|\1|'`;
 if ! [[ $diaDsd =~ ^[0-2][0-9]$|^[0-3][0-1]$ ]]; then
-	MSJ_ERR="Registro nro ""$REG_POR_ARCH"": ERROR. La fecha Desde es invalida";
+	MSJ_ERR="Registro n°""$REG_POR_ARCH"": ERROR. La fecha Desde es inválida";
 	bash "$EJECUTABLES""$LOGER" "VALIDADOR" "ERROR" "$MSJ_ERR" "$LOGS""$LOG_VALIDADOR";
 	return 1;
 fi;
 mesDsd=`echo $1 | sed 's|\(.*\)/\(.*\)/\(.*\)|\2|'`;
 if ! [[ $mesDsd =~ ^[0][0-9]$|^[1][0-2]$ ]]; then
-	MSJ_ERR="Registro nro ""$REG_POR_ARCH"": ERROR. La fecha Desde es invalida";
+	MSJ_ERR="Registro n°""$REG_POR_ARCH"": ERROR. La fecha Desde es inválida";
 	bash "$EJECUTABLES""$LOGER" "VALIDADOR" "ERROR" "$MSJ_ERR" "$LOGS""$LOG_VALIDADOR";
 	return 1;
 fi;
 anioDsd=`echo $1 | sed 's|\(.*\)/\(.*\)/\(.*\)|\3|'`;
 if ! [[ $anioDsd =~ ^[0-9][0-9][0-9][0-9]$ ]]; then
-	MSJ_ERR="Registro nro ""$REG_POR_ARCH"": ERROR. La fecha Desde es invalida";
+	MSJ_ERR="Registro n°""$REG_POR_ARCH"": ERROR. La fecha Desde es inválida";
 	bash "$EJECUTABLES""$LOGER" "VALIDADOR" "ERROR" "$MSJ_ERR" "$LOGS""$LOG_VALIDADOR";
 	return 1;
 fi;
 
 #valido "Fecha Hasta"
+echo $2;
 diaHsta=`echo $2 | sed 's|\(.*\)/\(.*\)/\(.*\)|\1|'`;
 if ! [[ $diaHsta =~ ^[0-2][0-9]$|^[0-3][0-1]$ ]]; then
-	MSJ_ERR="Registro nro ""$REG_POR_ARCH"": ERROR. La fecha Hasta es invalida";	
+	MSJ_ERR="Registro n°""$REG_POR_ARCH"": ERROR. La fecha Hasta es inválida";	
 	bash "$EJECUTABLES""$LOGER" "VALIDADOR" "ERROR" "$MSJ_ERR" "$LOGS""$LOG_VALIDADOR";
 	return 1;
 fi;
 mesHsta=`echo $2 | sed 's|\(.*\)/\(.*\)/\(.*\)|\2|'`;
 
 if ! [[ $mesHsta =~ ^[0][0-9]$|^[1][0-2]$ ]]; then
-	MSJ_ERR="Registro nro ""$REG_POR_ARCH"": ERROR. La fecha Hasta es invalida";	
+	MSJ_ERR="Registro n°""$REG_POR_ARCH"": ERROR. La fecha Hasta es inválida";	
 	bash "$EJECUTABLES""$LOGER" "VALIDADOR" "ERROR" "$MSJ_ERR" "$LOGS""$LOG_VALIDADOR";
 	return 1;
 fi;
 anioHsta=`echo $2 | sed 's|\(.*\)/\(.*\)/\(.*\)|\3|'`;
 anioHsta=`echo $anioHsta | sed 's/.$//g'` 
 if ! [[ $anioHsta =~ ^[0-9][0-9][0-9][0-9]$ ]]; then
-	MSJ_ERR="Registro nro ""$REG_POR_ARCH"": ERROR. La fecha Hasta es invalida";	
+	MSJ_ERR="Registro n°""$REG_POR_ARCH"": ERROR. La fecha Hasta es inválida";	
 	bash "$EJECUTABLES""$LOGER" "VALIDADOR" "ERROR" "$MSJ_ERR" "$LOGS""$LOG_VALIDADOR";
 	return 1;
 fi;
 #valido diferencia entre fecha desde y fecha hasta
 if [[ $anioDsd -gt $anioHsta ]]; then
-	MSJ_ERR="Registro nro ""$REG_POR_ARCH"": ERROR. Fechas invalidas";
+	MSJ_ERR="Registro n°""$REG_POR_ARCH"": ERROR. Fechas inválidas";
 	bash "$EJECUTABLES""$LOGER" "VALIDADOR" "ERROR" "$MSJ_ERR" "$LOGS""$LOG_VALIDADOR";
 	return 2;	
 fi;
 if [ $anioDsd -eq $anioHsta ] && [ $mesDsd -gt $mesHsta ]; then
-	MSJ_ERR="Registro nro ""$REG_POR_ARCH"": ERROR. Fechas invalidas";
+	MSJ_ERR="Registro n°""$REG_POR_ARCH"": ERROR. Fechas inválidas";
 	bash "$EJECUTABLES""$LOGER" "VALIDADOR" "ERROR" "$MSJ_ERR" "$LOGS""$LOG_VALIDADOR";
 	return 2;
 fi;
 if [ $anioDsd -eq $anioHsta ] && [ $mesDsd -eq $mesHsta ] && [ $diaDsd -ge $diaHsta ]; then
-	MSJ_ERR="Registro n°""$REG_POR_ARCH"": ERROR. Fechas invalidas";	
+	MSJ_ERR="Registro n°""$REG_POR_ARCH"": ERROR. Fechas inválidas";	
 	bash "$EJECUTABLES""$LOGER" "VALIDADOR" "ERROR" "$MSJ_ERR" "$LOGS""$LOG_VALIDADOR";
 	return 2;
 fi;
@@ -194,7 +199,7 @@ uno=1;
 LLAMAR_LISTADOR=0;
 
 MSJ_ERR="El VALIDADOR del DEMONIO comienza."
-bash "$EJECUTABLES""$LOGER" "VALIDADOR" "ERROR" "$MSJ_ERR" "$LOGS""$LOG_VALIDADOR";
+bash "$EJECUTABLES""$LOGER" "VALIDADOR" "INFORMATIVO" "$MSJ_ERR" "$LOGS""$LOG_VALIDADOR";
 
 #creo carpetas a usar
 crearDir $DUPLICADOS;
@@ -216,14 +221,15 @@ do
 	fi;
 	
 	MSJ_ERR="Se va a procesar el archivo ""$f";
-	bash "$EJECUTABLES""$LOGER" "VALIDADOR" "INFORMACIÓN" "$MSJ_ERR" "$LOGS""$LOG_VALIDADOR";
+	bash "$EJECUTABLES""$LOGER" "VALIDADOR" "INFORMATIVO" "$MSJ_ERR" "$LOGS""$LOG_VALIDADOR";
 	
 	while read linea
 		do 
 		
 		REG_POR_ARCH=$((REG_POR_ARCH + uno));
-		
-		cuenta=`echo $linea | sed 's/;.*//'`
+
+		cuenta=`echo $linea | sed 's/\(.*\);\(.*\);\(.*\);\(.*\);\(.*\);\(.*\);\(.*\);\(.*\);\(.*\)/\1/'`
+#		cuenta=`echo $linea | sed 's/;.*//'`
 
 		doc=`echo $linea | sed 's/\(.*\);\(.*\);\(.*\);\(.*\);\(.*\);\(.*\);\(.*\);\(.*\);\(.*\)/\2/'`
 		nombre=`echo $linea | sed 's/\(.*\);\(.*\);\(.*\);\(.*\);\(.*\);\(.*\);\(.*\);\(.*\);\(.*\)/\3/'`
@@ -233,6 +239,7 @@ do
 		nroTarj4=`echo $linea | sed 's/\(.*\);\(.*\);\(.*\);\(.*\);\(.*\);\(.*\);\(.*\);\(.*\);\(.*\)/\7/'`
 		fechaDsd=`echo $linea | sed 's/\(.*\);\(.*\);\(.*\);\(.*\);\(.*\);\(.*\);\(.*\);\(.*\);\(.*\)/\8/'`
 		fechaHsta=`echo $linea | sed 's/.*;//'`
+
 		validarNroCuenta $cuenta;
 		if ! [ $? = 0 ]; then 
 			registrarRegNoValido "$f" "$MSJ_ERR" "$linea" "$RECHAZADOS$PLASTICOS_RECHAZADOS";
@@ -267,6 +274,8 @@ do
 			registrarRegNoValido "$f" "$MSJ_ERR" "$linea" "$RECHAZADOS$PLASTICOS_RECHAZADOS";
 			continue; fi;
 			
+		fechaHsta=`echo $fechaHsta | sed 's/.$//g'`	
+			
 		estadoCuenta=`grep $cuenta $MAESTROS$CUMAE | sed 's/\(.*\);\(.*\);\(.*\);\(.*\);\(.*\);\(.*\);\(.*\);\(.*\)/\8/'`
 		documentoCuenta=`grep $cuenta $MAESTROS$CUMAE | sed 's/\(.*\);\(.*\);\(.*\);\(.*\);\(.*\);\(.*\);\(.*\);\(.*\)/\3/'`
 		denominacionCuenta=`grep $cuenta $MAESTROS$CUMAE | sed 's/\(.*\);\(.*\);\(.*\);\(.*\);\(.*\);\(.*\);\(.*\);\(.*\)/\4/'`
@@ -276,18 +285,18 @@ do
 	
 		alias=`grep $ENTIDAD_BANCARIA $MAESTROS$BAMAE | sed 's/\(.*\);\(.*\);\(.*\)/\2/'`
 	
-		estadoCuenta=`echo $anioHsta | sed 's/.$//g'`;
+		estadoCuenta=`echo $estadoCuenta | sed 's/.$//g'`;
 		
 		cant=`fgrep -o $cuenta $MAESTROS$TX_TARJETAS | wc -l `
 	
 		if ! [ $cant -gt 1 ]; then
-			tarjVieja="SI";
+			tarjVieja="1";
 			denunciada=`grep $cuenta $MAESTROS$TX_TARJETAS | grep "Entregada" | sed 's/.*;\([0-2]\);\([0-2]\);.*/\1/'`;
 			denunciada=`echo $denunciada | sed 's/[0-2].*\ //'`;
 			bloqueada=`grep $cuenta $MAESTROS$TX_TARJETAS | grep "Entregada" | sed 's/.*;\([0-2]\);\([0-2]\);.*/\2/'`;
 			bloqueada=`echo $bloqueada | sed 's/[0-2].*\ //'`;
 		else 	
-			tarjVieja="NO";
+			tarjVieja="0";
 			denunciada=0;
 			bloqueada=0;
 		fi;
