@@ -537,11 +537,11 @@ sub imprimirGeneral {
 
 	# ·Si muestra Fuentes, hacerlo con el siguiente formato:
 	# 	Fuente - Alias
-	$regVec[22] = $regVec[0] . " - " . $regVec[23];
+	$regVec[0] = $regVec[0] . " - " . $regVec[23];
 
 	splice(@regVec, 12, 3);
 	splice(@regVec, 13, 1);
-	splice(@regVec, 19, 1);
+	splice(@regVec, 18, 2);
 
 	print join("\t",@regVec) . "\n";
 }
