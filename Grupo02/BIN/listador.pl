@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/bin/perl
 
 use Time::Local;
 use strict;
@@ -140,7 +140,6 @@ sub validarSubComandos {
 sub listadorManual {
 	my $vecComandos = $_[0];
 
-	#my @input = split(";", substr($vecComandos->[0],3));
 	my @input = &definirInput(substr($vecComandos->[0],3));
 	my ($impresor, @listador) = &definirListador(substr($vecComandos->[1],3));
 	my @filtro = &definirFiltro(substr($vecComandos->[2],3));
@@ -154,7 +153,7 @@ sub listadorManual {
 	my $lectura;
 
 	while() {
-		print "\nLISTADOR -> ";
+		print "\nLISTADOR : ";
 		$lectura = <STDIN>;
 		chomp($lectura);
 		$lectura =~ s/"//g;
@@ -439,7 +438,7 @@ sub filtroPorEntidad {
 	if($filtroVec->[0] eq "*") {
 		return 1;
 	}
-	
+
 	return ( ($regVec->[22] >= $filtroVec->[0]) and ($regVec->[22] <= $filtroVec->[1]) );
 }
 
@@ -498,7 +497,7 @@ sub imprimirCuentas {
 	#	Limite/Entidad Bancaria/Alias
 	
 	my @regVec = @_;
-	my @aux = ($regVec[22]." - ".$regVec[23] , $regVec[1], $regVec[17], $regVec[18], $regVec[19], $regVec[20], $regVec[21], $regVec[2]);
+	my @aux = ($regVec[0]." - ".$regVec[23] , $regVec[1], $regVec[17], $regVec[18], $regVec[19], $regVec[20], $regVec[21], $regVec[2]);
 
 	#Entidad Bancaria/Nro. de Cuenta/Documento cuenta/Denominación de la Cuenta/Fecha de Alta/
 	#	Categoría/Limite/Estado de la cuenta
@@ -512,9 +511,9 @@ sub imprimirTarjetas {
 	#	Limite/Entidad Bancaria/Alias
 	
 	my @regVec = @_;
-	my @aux = ($regVec[22]." - ".$regVec[23], $regVec[1], $regVec[9], $regVec[10], $regVec[11]."-".$regVec[12]."-".$regVec[13]."-".$regVec[14], $regVec[15]." - ".$regVec[16], $regVec[4], $regVec[5], $regVec[6], $regVec[7]);
+	my @aux = ($regVec[0]." - ".$regVec[23], $regVec[1], $regVec[9], $regVec[10], $regVec[11]."-".$regVec[12]."-".$regVec[13]."-".$regVec[14], $regVec[15]." - ".$regVec[16], $regVec[4], $regVec[5], $regVec[6], $regVec[7]);
 
-	#Entidad Bancaria-Alias/Nro. de Cuenta/Documento Tarjeta/Denominación en la Tarjeta/
+	#Fuente - Alias/Nro. de Cuenta/Documento Tarjeta/Denominación en la Tarjeta/
 	#	T1-T2-T3-T4/Fecha desde - Fecha hasta/Denunciada?/Bloqueada?/Condición  de Distribución/
 	#	Fecha de cambio de la condición de distribución
 	print join("\t",@aux) . "\n";
@@ -538,7 +537,7 @@ sub imprimirGeneral {
 
 	# ·Si muestra Fuentes, hacerlo con el siguiente formato:
 	# 	Fuente - Alias
-	$regVec[22] = $regVec[22] . " - " . $regVec[23];
+	$regVec[22] = $regVec[0] . " - " . $regVec[23];
 
 	splice(@regVec, 12, 3);
 	splice(@regVec, 13, 1);
