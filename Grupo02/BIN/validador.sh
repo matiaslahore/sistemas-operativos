@@ -297,7 +297,7 @@ do
 			bloqueada=0;
 		fi;
 	
-		regOK=$i\;$cuenta\;$estadoCuenta\;$tarjVieja\;$denunciada\;$bloqueada\;\ \;\ \;$doc\;$nombre\;$nroTarj1\;$nroTarj2\;$nroTarj3\;$nroTarj4\;$fechaDsd\;$fechaHsta\;$documentoCuenta\;$denominacionCuenta\;$fechaAlta\;$categoria\;$limite\;$ENTIDAD_BANCARIA\;$alias;	
+		regOK=$i\;$cuenta\;$estadoCuenta\;$tarjVieja\;$denunciada\;$bloqueada\;\ \;\ \;"VALIDADOR"\;$doc\;$nombre\;$nroTarj1\;$nroTarj2\;$nroTarj3\;$nroTarj4\;$fechaDsd\;$fechaHsta\;$documentoCuenta\;$denominacionCuenta\;$fechaAlta\;$categoria\;$limite\;$ENTIDAD_BANCARIA\;$alias;	
 
 		echo $regOK >> $VALIDADOS"/Plasticos_emitidos_$NUMERO_SESSION";
 	
