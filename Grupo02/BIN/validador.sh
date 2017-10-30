@@ -12,7 +12,7 @@ function validarProcesado {
 		if [ $result = 0 ]; then #Cayo en rechazados
 			MSJ_ERR="El archivo $1 ya ha sido procesado. Ha sido movido hacia la carpeta de rechazados"
 		elif [[ $result = 1 || $result = 2 ]]; then #Cayo en duplicados
-			MSJ_ERR="El archivo $1 será movido hacia la carpeta de duplicados"
+			MSJ_ERR="El archivo $1 sera movido hacia la carpeta de duplicados"
 		fi
 
 		bash "$EJECUTABLES""$LOGER" "VALIDADOR" "ALERTA" "$MSJ_ERR" "$LOGS""$LOG_VALIDADOR"
@@ -32,22 +32,19 @@ function validarNroTarjeta {
 if [[ $1 =~ [0-9][0-9][0-9][0-9]$ ]]; then
 	return 0;
 else 
-	MSJ_ERR="Registro n°""$REG_POR_ARCH"": ERROR. EL número de tarjeta es inválido"
+	MSJ_ERR="Registro n°""$REG_POR_ARCH"": ERROR. EL numero de tarjeta es invalido"
 	bash "$EJECUTABLES""$LOGER" "VALIDADOR" "ERROR" "$MSJ_ERR" "$LOGS""$LOG_VALIDADOR";
 	return 1;
 fi;
 }
 
 function validarNroCuenta {
-echo $1;
 if [[ $1 =~ [0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]$ ]]; then
-	echo $1;
 	validarExistenciaNroCuenta $1;
 	resp=$?;
-	echo $resp;
 	return $resp;
 else 
-	MSJ_ERR="Registro n°""$REG_POR_ARCH"": ERROR. El número de cuenta es inválido";
+	MSJ_ERR="Registro n°""$REG_POR_ARCH"": ERROR. El numero de cuenta es invalido";
 	bash "$EJECUTABLES""$LOGER" "VALIDADOR" "ERROR" "$MSJ_ERR" "$LOGS""$LOG_VALIDADOR";
 	return 1;
 fi;
@@ -66,58 +63,57 @@ function validarFechas {
 #valido "Fecha Desde"
 diaDsd=`echo $1 | sed 's|\(.*\)/\(.*\)/\(.*\)|\1|'`;
 if ! [[ $diaDsd =~ ^[0-2][0-9]$|^[0-3][0-1]$ ]]; then
-	MSJ_ERR="Registro n°""$REG_POR_ARCH"": ERROR. La fecha Desde es inválida";
+	MSJ_ERR="Registro n°""$REG_POR_ARCH"": ERROR. La fecha Desde es invalida";
 	bash "$EJECUTABLES""$LOGER" "VALIDADOR" "ERROR" "$MSJ_ERR" "$LOGS""$LOG_VALIDADOR";
 	return 1;
 fi;
 mesDsd=`echo $1 | sed 's|\(.*\)/\(.*\)/\(.*\)|\2|'`;
 if ! [[ $mesDsd =~ ^[0][0-9]$|^[1][0-2]$ ]]; then
-	MSJ_ERR="Registro n°""$REG_POR_ARCH"": ERROR. La fecha Desde es inválida";
+	MSJ_ERR="Registro n°""$REG_POR_ARCH"": ERROR. La fecha Desde es invalida";
 	bash "$EJECUTABLES""$LOGER" "VALIDADOR" "ERROR" "$MSJ_ERR" "$LOGS""$LOG_VALIDADOR";
 	return 1;
 fi;
 anioDsd=`echo $1 | sed 's|\(.*\)/\(.*\)/\(.*\)|\3|'`;
 if ! [[ $anioDsd =~ ^[0-9][0-9][0-9][0-9]$ ]]; then
-	MSJ_ERR="Registro n°""$REG_POR_ARCH"": ERROR. La fecha Desde es inválida";
+	MSJ_ERR="Registro n°""$REG_POR_ARCH"": ERROR. La fecha Desde es invalida";
 	bash "$EJECUTABLES""$LOGER" "VALIDADOR" "ERROR" "$MSJ_ERR" "$LOGS""$LOG_VALIDADOR";
 	return 1;
 fi;
 
 #valido "Fecha Hasta"
-echo $2;
 diaHsta=`echo $2 | sed 's|\(.*\)/\(.*\)/\(.*\)|\1|'`;
 if ! [[ $diaHsta =~ ^[0-2][0-9]$|^[0-3][0-1]$ ]]; then
-	MSJ_ERR="Registro n°""$REG_POR_ARCH"": ERROR. La fecha Hasta es inválida";	
+	MSJ_ERR="Registro n°""$REG_POR_ARCH"": ERROR. La fecha Hasta es invalida";	
 	bash "$EJECUTABLES""$LOGER" "VALIDADOR" "ERROR" "$MSJ_ERR" "$LOGS""$LOG_VALIDADOR";
 	return 1;
 fi;
 mesHsta=`echo $2 | sed 's|\(.*\)/\(.*\)/\(.*\)|\2|'`;
 
 if ! [[ $mesHsta =~ ^[0][0-9]$|^[1][0-2]$ ]]; then
-	MSJ_ERR="Registro n°""$REG_POR_ARCH"": ERROR. La fecha Hasta es inválida";	
+	MSJ_ERR="Registro n°""$REG_POR_ARCH"": ERROR. La fecha Hasta es invalida";	
 	bash "$EJECUTABLES""$LOGER" "VALIDADOR" "ERROR" "$MSJ_ERR" "$LOGS""$LOG_VALIDADOR";
 	return 1;
 fi;
 anioHsta=`echo $2 | sed 's|\(.*\)/\(.*\)/\(.*\)|\3|'`;
 anioHsta=`echo $anioHsta | sed 's/.$//g'` 
 if ! [[ $anioHsta =~ ^[0-9][0-9][0-9][0-9]$ ]]; then
-	MSJ_ERR="Registro n°""$REG_POR_ARCH"": ERROR. La fecha Hasta es inválida";	
+	MSJ_ERR="Registro n°""$REG_POR_ARCH"": ERROR. La fecha Hasta es invalida";	
 	bash "$EJECUTABLES""$LOGER" "VALIDADOR" "ERROR" "$MSJ_ERR" "$LOGS""$LOG_VALIDADOR";
 	return 1;
 fi;
 #valido diferencia entre fecha desde y fecha hasta
 if [[ $anioDsd -gt $anioHsta ]]; then
-	MSJ_ERR="Registro n°""$REG_POR_ARCH"": ERROR. Fechas inválidas";
+	MSJ_ERR="Registro n°""$REG_POR_ARCH"": ERROR. Fechas invalidas";
 	bash "$EJECUTABLES""$LOGER" "VALIDADOR" "ERROR" "$MSJ_ERR" "$LOGS""$LOG_VALIDADOR";
 	return 2;	
 fi;
 if [ $anioDsd -eq $anioHsta ] && [ $mesDsd -gt $mesHsta ]; then
-	MSJ_ERR="Registro n°""$REG_POR_ARCH"": ERROR. Fechas inválidas";
+	MSJ_ERR="Registro n°""$REG_POR_ARCH"": ERROR. Fechas invalidas";
 	bash "$EJECUTABLES""$LOGER" "VALIDADOR" "ERROR" "$MSJ_ERR" "$LOGS""$LOG_VALIDADOR";
 	return 2;
 fi;
 if [ $anioDsd -eq $anioHsta ] && [ $mesDsd -eq $mesHsta ] && [ $diaDsd -ge $diaHsta ]; then
-	MSJ_ERR="Registro n°""$REG_POR_ARCH"": ERROR. Fechas inválidas";	
+	MSJ_ERR="Registro n°""$REG_POR_ARCH"": ERROR. Fechas invalidas";	
 	bash "$EJECUTABLES""$LOGER" "VALIDADOR" "ERROR" "$MSJ_ERR" "$LOGS""$LOG_VALIDADOR";
 	return 2;
 fi;
@@ -189,7 +185,7 @@ LOG_VALIDADOR="/validador.log"
 MOVER="/mover.sh"
 PLASTICOS_RECHAZADOS="/Plasticos_rechazados.txt"
 
-NUMERO_SESSION=1;
+NUMERO_SESSION=0;
 
 MSJ_ERR="";
 
@@ -338,11 +334,11 @@ if [ $LLAMAR_LISTADOR -gt 0 ]; then
 	#Chequeo que el listador no esté corriendo.
 	proc_listador=`ps -ef | grep -c "$LISTADOR"`
 	if [[ $proc_listador -eq 1 ]]; then #Valido que el validador no este corriendo
-		MSJ_ERR="Se llamará al listador."
+		MSJ_ERR="Se llamara al listador."
 		bash "$EJECUTABLES""$LOGER" "VALIDADOR" "INFORMATIVO" "$MSJ_ERR" "$LOGS""$LOG_VALIDADOR";
 		perl "$EJECUTABLES""$LISTADOR";
 	else 	
-		MSJ_ERR="No se pudo llamar al listador porque ya está corriendo."
+		MSJ_ERR="No se pudo llamar al listador porque ya esta corriendo."
 		bash "$EJECUTABLES""$LOGER" "VALIDADOR" "INFORMATIVO" "$MSJ_ERR" "$LOGS""$LOG_VALIDADOR";
 	fi;	
 	
