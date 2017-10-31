@@ -314,6 +314,9 @@ sub procesarInput {
 
 	open (SAL,">aux.list") || die "ERROR: No puedo abrir el fichero de output\n";
 
+	print $listador->[0]->()."\n";
+	print SAL $listador->[0]->()."\n";
+
 	foreach my $elem (@$input) {
 		open (ENT,"<$elem") || die "ERROR: No puedo abrir el fichero input\n";
 
@@ -352,80 +355,104 @@ sub pasaFiltro {
 }
 
 sub listarCuentas {
-	#titulo listado:
-	my ($estadoCuenta, $regVec) = @_;
+	if(!@_) {
+		#titulo listado:
+		return "LISTADO DE CUENTAS\n";
+	} else {
+		my ($estadoCuenta, $regVec) = @_;
 
-	#PRE-FILTRO
-	return (grep $_ eq $regVec->[2], @$estadoCuenta);
+		#PRE-FILTRO
+		return (grep $_ eq $regVec->[2], @$estadoCuenta);
+	}
 }
 
 sub listarTarjetas {
-	#titulo listado:
-	my ($estadoTx, $regVec) = @_;
+	if(!@_) {
+		#titulo listado:
+		return "LISTADO DE TARJETAS\n";
+	} else {
+		my ($estadoTx, $regVec) = @_;
 
-	#PRE-FILTRO -> ESTADO_TX => general / denunciadas / bloqueadas / vencidas.
-	my %definirEstadoTx = (
-		"denunciadas" => sub {
-			my $regACmp = $_[0];
-			#comparo el campo "DENUNCIADA?" -> es un flag
-			return ($regACmp->[4] != 0);
-		},
-		"bloqueadas" => sub {
-			my $regACmp = $_[0];
-			#comparo el campo "BLOQUEADA?" -> es un flag
-			return ($regACmp->[5] != 0);
-		},
-		"vencidas" => sub {
-			my $regACmp = $_[0];
-			#comparo el campo "fechaHasta" con fecha actual
+		#PRE-FILTRO -> ESTADO_TX => general / denunciadas / bloqueadas / vencidas.
+		my %definirEstadoTx = (
+			"denunciadas" => sub {
+				my $regACmp = $_[0];
+				#comparo el campo "DENUNCIADA?" -> es un flag
+				return ($regACmp->[4] != 0);
+			},
+			"bloqueadas" => sub {
+				my $regACmp = $_[0];
+				#comparo el campo "BLOQUEADA?" -> es un flag
+				return ($regACmp->[5] != 0);
+			},
+			"vencidas" => sub {
+				my $regACmp = $_[0];
+				#comparo el campo "fechaHasta" con fecha actual
 
-			my @regFecha = split("/",$regACmp->[15]); #levanta formato DD/MM/YYYY
-			$regFecha[2] += 2000;
+				my @regFecha = split("/",$regACmp->[15]); #levanta formato DD/MM/YYYY
+				$regFecha[2] += 2000;
 
-			my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time);
-			$year += 1900;
-			my $timeAct = timelocal(0,0,0,$mday,$mon,$year);
-			my $timeaCmp = timelocal(0,0,0,$regFecha[0],$regFecha[1]-1,$regFecha[2]);
+				my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time);
+				$year += 1900;
+				my $timeAct = timelocal(0,0,0,$mday,$mon,$year);
+				my $timeaCmp = timelocal(0,0,0,$regFecha[0],$regFecha[1]-1,$regFecha[2]);
 
-			return ($timeaCmp <= $timeAct);
-		},
-		"*" => sub {
-			return 1;
-		},
-	);
+				return ($timeaCmp <= $timeAct);
+			},
+			"*" => sub {
+				return 1;
+			},
+		);
 
-	#QUE PASA SI LE MANDO FRUTA AL DEFINIRESTADOTX?
-	return ($definirEstadoTx{$estadoTx}->($regVec));
+		#QUE PASA SI LE MANDO FRUTA AL DEFINIRESTADOTX?
+		return ($definirEstadoTx{$estadoTx}->($regVec));
 
-	#el campo es un "FLAG", si no es "0" cumple
-	#vencida -> paso a numero la fecha, y cmp con la de hoy
-	#return (grep $_ eq $regVec->[2], @$estadoTx);
+		#el campo es un "FLAG", si no es "0" cumple
+		#vencida -> paso a numero la fecha, y cmp con la de hoy
+		#return (grep $_ eq $regVec->[2], @$estadoTx);
+	}
 }
 
 sub listarCondicionDeDistribucion {
 	#titulo listado:
 	# *para este listado solo se solicita filtro por condición de distribución.
-	#PRE-FILTRO es x condicion de distribucion o nada..
-	my ($condDistribucion, $regVec) = @_;
+	#PRE-FILTRO es x condicion de distribucion
 
-	return &filtroPorCondicionDeDistribucion($condDistribucion, $regVec);
+	if(!@_) {
+		#titulo listado:
+		return "LISTADO DE CONDICION DE DISTRBUCION\n";
+	} else {
+		my ($condDistribucion, $regVec) = @_;
+
+		return &filtroPorCondicionDeDistribucion($condDistribucion, $regVec);
+	}
 }
 
 sub listarSituacionCuenta {
 	#titulo listado:
 	# *para este listado solo se solicita filtro por documento cuenta.
 	#PRE-FILTRO es x docCuenta
-	my ($docCuenta, $regVec) = @_;
+	if(!@_) {
+		#titulo listado:
+		return "LISTADO DE SITUACION DE CUENTA\n";
+	} else {
+		my ($docCuenta, $regVec) = @_;
 
-	return &filtroPorDocumentoCuenta($docCuenta, $regVec);
+		return &filtroPorDocumentoCuenta($docCuenta, $regVec);
+	}
 }
 
 sub listarSituacionTarjeta {
 	#titulo listado:
 	# *para este listado solo se solicita filtro por documento tarjeta.
-	my ($docTx, $regVec) = @_;
+	if(!@_) {
+		#titulo listado:
+		return "LISTADO DE SITUACION DE TARJETA\n";
+	} else {
+		my ($docTx, $regVec) = @_;
 
-	return &filtroPorDocumentoTarjeta($docTx, $regVec);
+		return &filtroPorDocumentoTarjeta($docTx, $regVec);
+	}
 }
 
 sub filtroPorEntidad {
