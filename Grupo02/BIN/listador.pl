@@ -6,6 +6,11 @@ use strict;
 ########################################################
 ######################### MAIN #########################
 ########################################################
+if( !$ENV{"VALIDADOS"} and !$ENV{"REPORTES"} ){
+	print "El sistema no fue inicializado. Corra preparar.sh\n";
+	exit;
+}
+
 if (@ARGV) {
 	#MODO MANUAL
 
@@ -203,6 +208,11 @@ sub definirInput {
 		}
 	}
 
+	if(!@vec) {
+		print "No se encontraron archivos\n";
+		exit;
+	}
+
 	return @vec;
 }
 
@@ -280,8 +290,8 @@ sub definirFiltro {
 		"fuente" => sub {
 			return (\&filtroPorFuente,$_[0]);
 		},
-		"condDistribucion" => sub {
-			return (\&filtroPorCondicionDeDistribucion,$_[0]);
+		"condDistr" => sub {
+			return (\&filtroPorCondicionDeDistribucion,uc($_[0]));
 		},
 		"docCuenta" => sub {
 			return (\&filtroPorDocumentoCuenta,$_[0]);
@@ -315,7 +325,9 @@ sub procesarInput {
 	open (SAL,">aux.list") || die "ERROR: No puedo abrir el fichero de output\n";
 
 	print $listador->[0]->()."\n";
-	print SAL $listador->[0]->()."\n";
+	print SAL $listador->[0]->();
+	#titulo
+	print SAL "Fuente;Nro de Cuenta;Estado de la cuenta;Tarjeta vieja?;Denunciada?;Bloqueada?;Condición de Distribución;Fecha de cambio de la condición de distribución;Proceso;Documento Tarjeta;Denominación en la Tarjeta;t1;t2;t3;t4;Fecha desde;Fecha hasta;Documento cuenta;Denominación de la Cuenta;Fecha de Alta;Categoría;Limite;Entidad Bancaria;Alias\n";
 
 	foreach my $elem (@$input) {
 		open (ENT,"<$elem") || die "ERROR: No puedo abrir el fichero input\n";
@@ -424,7 +436,7 @@ sub listarCondicionDeDistribucion {
 	} else {
 		my ($condDistribucion, $regVec) = @_;
 
-		return &filtroPorCondicionDeDistribucion($condDistribucion, $regVec);
+		return &filtroPorCondicionDeDistribucion(uc($condDistribucion), $regVec);
 	}
 }
 
