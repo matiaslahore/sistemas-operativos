@@ -600,8 +600,8 @@ sub listadorAutomatico {
 sub actualizarDistribucion {
 	my ($input,$output) = @_;
 
-	open (ENT,"<$input") || die " ERROR: No puedo abrir el fichero de entrada \n :$input\n";
-	open (SAL,">$output") || die "ERROR: No puedo abrir el fichero de salida \n :$output\n";
+	open (ENT,"<$input") || die " ERROR: No puedo abrir el fichero de entrada \n $input\n";
+	open (SAL,">$output") || die "ERROR: No puedo abrir el fichero de salida \n $output\n";
 
 	while (<ENT>) {
 		chomp($_); #con chomp elimino el fin de linea, $_ contiene el último registro leido de un fichero.
@@ -652,8 +652,8 @@ sub actualizarDistribucion {
 				# >= HOY, $str = "NO DISTRIBUIR, tarjeta VENCIDA"
 				# >= (HOY-10 dias), $str = "NO DISTRIBUIR, VENTANA de distribucion insuficiente"
 
-				my @regFecha = split("/",$reg[15]); #levanta formato DD/MM/YYYY
-				$regFecha[2] += 2000;
+				my @regFecha = split("/",$reg[16]); #levanta formato DD/MM/YYYY
+				#$regFecha[2] += 2000;
 
 				my $timeAct = timelocal(0,0,0,$mday,$mon-1,$year);
 				my $timeDiezDias = timegm(0,0,0,11,0,1970);
@@ -661,9 +661,9 @@ sub actualizarDistribucion {
 
 				my $timeaCmp = timelocal(0,0,0,$regFecha[0],$regFecha[1]-1,$regFecha[2]);
 
-				# $ltime = localtime($timeMasDiezDias);
+				# my $ltime = localtime($timeMasDiezDias);
 				# print "HOY+10 ES " . "$timeMasDiezDias => $ltime\n";
-				# $ltimeCmp = localtime($timeaCmp);
+				# my $ltimeCmp = localtime($timeaCmp);
 				# print "TIME CMP: " . "$timeaCmp => $ltimeCmp\n";
 
 				if($timeaCmp <= $timeMasDiezDias) {
