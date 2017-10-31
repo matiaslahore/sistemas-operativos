@@ -65,6 +65,7 @@ do
 
 		if [ "$existe_entidad" == false ]; then
 			mensaje="$mensaje_ciclos"", ""$M_NOV_RECHAZADA""$novedad"". ""$M_ENT_INEXISTENTE"
+			bash "$EJECUTABLES""$MOVER" "$novedad" "$RECHAZADOS" "$RECHAZADOS_DUP"
 			bash "$EJECUTABLES""$LOGER" "$DEMONIO" "$M_ERROR" "$mensaje" "$LOGS""$LOG_DEMONIO"
 			continue
 		fi
@@ -74,6 +75,7 @@ do
 		fecha_novedad=${novedad#*_}; fecha_novedad=${fecha_novedad%%.*}
 		if [[ ! $fecha_novedad =~ [0-9]{4}[0-1][0-9][0-3][0-9] ]]; then
 			mensaje="$mensaje_ciclos"", ""$M_NOV_RECHAZADA""$novedad"". ""$M_FECHA_INV"
+			bash "$EJECUTABLES""$MOVER" "$novedad" "$RECHAZADOS" "$RECHAZADOS_DUP"
 			bash "$EJECUTABLES""$LOGER" "$DEMONIO" "$M_ERROR" "$mensaje" "$LOGS""$LOG_DEMONIO"
 			continue
 		fi
@@ -83,6 +85,7 @@ do
 		fecha_hoy=$(echo $(date +%F) | sed 's/-//g')
 		if [[ "$fecha_novedad" -gt "$fecha_hoy" ]]; then
 			mensaje="$mensaje_ciclos"", ""$M_NOV_RECHAZADA""$novedad"". ""$M_FECHA_ADELANT"
+			bash "$EJECUTABLES""$MOVER" "$novedad" "$RECHAZADOS" "$RECHAZADOS_DUP"
 			bash "$EJECUTABLES""$LOGER" "$DEMONIO" "$M_ERROR" "$mensaje" "$LOGS""$LOG_DEMONIO"
 			continue
 		fi
